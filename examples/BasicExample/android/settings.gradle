@@ -1,0 +1,7 @@
+rootProject.name = 'BasicExample'
+
+include ':react-native-mailcore'
+project(':react-native-mailcore').projectDir = new File(rootProject.projectDir, '../../../android')
+include ':mailcore2-android-4'
+project(':mailcore2-android-4').projectDir = new File(rootProject.projectDir, '../../../mailcore2-android-4')
+include ':app'
