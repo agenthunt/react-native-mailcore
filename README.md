@@ -6,7 +6,7 @@ react native bindings for https://github.com/MailCore/mailcore2
 
 ## Stability status: alpha
 
-#Setup
+## Setup
 
 * `yarn add react-native-mailcore`
 * `react-native link react-native-mailcore`
@@ -15,59 +15,60 @@ react native bindings for https://github.com/MailCore/mailcore2
   * `pod install`
 * For android, 
   * copy paste the following lines in to `settings.gradle`
+  
   ```
   include ':mailcore2-android-4'
   project(':mailcore2-android-4').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-mailcore/mailcore2-android-4')
   ```
   * Add the following code to app/build.gradle of your app. Make sure to change the react-native version properly
+  
   ```
-import com.android.build.gradle.internal.pipeline.TransformTask
+    import com.android.build.gradle.internal.pipeline.TransformTask
 
-def deleteDuplicateJniFiles() {
-    def files = fileTree("${buildDir}/intermediates/exploded-aar/com.facebook.react/react-native/0.43.3/jni/") {
-        include "**/libgnustl_shared.so"
+    def deleteDuplicateJniFiles() {
+        def files = fileTree("${buildDir}/intermediates/exploded-aar/com.facebook.react/react-native/0.43.3/jni/") {
+            include "**/libgnustl_shared.so"
+        }
+        files.each { it.delete() }
     }
-    files.each { it.delete() }
-}
 
-tasks.withType(TransformTask) { pkgTask ->
-    pkgTask.doFirst { deleteDuplicateJniFiles() }
-}
+    tasks.withType(TransformTask) { pkgTask ->
+        pkgTask.doFirst { deleteDuplicateJniFiles() }
+    }
 ```
 
 
-#Usage
+## Usage
 
 * Send mail
 
+ ```javascript
+ import MailCore from 'react-native-mailcore';
+ MailCore.sendMail({
+   hostname: 'smtp.gmail.com',
+   port: 465,
+   username: '<gmail id>',
+   password: '<password>',
+   from: {
+     addressWithDisplayName: 'From Label',
+     mailbox: '<from email>'
+   },
+   to: {
+     addressWithDisplayName: 'To Label',
+     mailbox: '<to email>'
+   },
+   subject: 'Testing RN MailCore' + new Date(),
+   htmlBody: `<h1> How is it going </h1>
+               <p> Test message </p>
+             `
+ }).then((result) => {
+   alert(result.status);
+ }).catch((error) => {
+   alert(error);
+ })
+ ```
 
-```javascript
-import MailCore from 'react-native-mailcore';
-MailCore.sendMail({
-  hostname: 'smtp.gmail.com',
-  port: 465,
-  username: '<gmail id>',
-  password: '<password>',
-  from: {
-    addressWithDisplayName: 'From Label',
-    mailbox: '<from email>'
-  },
-  to: {
-    addressWithDisplayName: 'To Label',
-    mailbox: '<to email>'
-  },
-  subject: 'Testing RN MailCore' + new Date(),
-  htmlBody: `<h1> How is it going </h1>
-              <p> Test message </p>
-            `
-}).then((result) => {
-  alert(result.status);
-}).catch((error) => {
-  alert(error);
-})
-```
-
-### TODO
+## TODO
 
 - [x] sendMail API support
 - [ ] Expose other methods from libmailcore2 library  
