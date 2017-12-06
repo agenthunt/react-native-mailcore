@@ -19,6 +19,7 @@ import com.libmailcore.SMTPOperation;
 import com.libmailcore.SMTPSession;
 
 import java.util.ArrayList;
+import android.util.Base64;
 
 public class RNMailCoreModule extends ReactContextBaseJavaModule {
 
@@ -63,6 +64,12 @@ public class RNMailCoreModule extends ReactContextBaseJavaModule {
         MessageBuilder messageBuilder = new MessageBuilder();
         messageBuilder.setHeader(messageHeader);
         messageBuilder.setHTMLBody(obj.getString("htmlBody"));
+        
+        if(obj.hasKey("attachment")) {
+          ReadableMap attachmentObj = obj.getMap("attachment");
+          byte[] decoded = Base64.decode(attachmentObj.getString("data"), Base64.DEFAULT);
+          messageBuilder.addAttachment(Attachment.attachmentWithData(attachmentObj.getString("name"), decoded));
+        }
 
         ArrayList<Address> toAddressList = new ArrayList();
         toAddressList.add(toAddress);
