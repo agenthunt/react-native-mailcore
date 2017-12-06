@@ -9,6 +9,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.libmailcore.Address;
+import com.libmailcore.Address;
 import com.libmailcore.AuthType;
 import com.libmailcore.ConnectionType;
 import com.libmailcore.MailException;
