@@ -60,22 +60,40 @@ react native bindings for https://github.com/MailCore/mailcore2
   project(':mailcore2-android-4').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-mailcore/mailcore2-android-4')
   ```
 
-  * Add the following code to app/build.gradle of your app. Make sure to change the react-native version properly
+  * Add the following code to `app/build.gradle` of your app.
 
-  ```
-    import com.android.build.gradle.internal.pipeline.TransformTask
+    * For android tools version `com.android.tools.build:gradle:2.2.3`
 
-    def deleteDuplicateJniFiles() {
-        def files = fileTree("${buildDir}/intermediates/exploded-aar/com.facebook.react/react-native/0.43.3/jni/") {
-            include "**/libgnustl_shared.so"
+      ```
+        import com.android.build.gradle.internal.pipeline.TransformTask
+
+        def deleteDuplicateJniFiles() {
+            def files = fileTree("${buildDir}/intermediates/exploded-aar/com.facebook.react/react-native/0.43.3/jni/") {
+                include "**/libgnustl_shared.so"
+            }
+            files.each { it.delete() }
         }
-        files.each { it.delete() }
-    }
 
-    tasks.withType(TransformTask) { pkgTask ->
-        pkgTask.doFirst { deleteDuplicateJniFiles() }
-    }
-  ```
+        tasks.withType(TransformTask) { pkgTask ->
+            pkgTask.doFirst { deleteDuplicateJniFiles() }
+        }
+      ```
+
+      * Make sure to change the react-native version properly
+
+    * For android tools version `com.android.tools.build:gradle:2.3.3`
+      ```
+      android {
+        ...
+        ...
+        ...
+        ...
+        ...
+          packagingOptions{
+              pickFirst '**/libgnustl_shared.so'
+          }
+      }
+      ```
 
 ## Usage
 
