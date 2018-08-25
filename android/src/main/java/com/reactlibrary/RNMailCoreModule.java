@@ -57,15 +57,17 @@ public class RNMailCoreModule extends ReactContextBaseJavaModule {
         toAddress.setDisplayName(toObj.getString("addressWithDisplayName"));
         toAddress.setMailbox(toObj.getString("mailbox"));
 
+        ArrayList<Address> toAddressList = new ArrayList();
+        toAddressList.add(toAddress);
+
         MessageHeader messageHeader = new MessageHeader();
         messageHeader.setSubject(obj.getString("subject"));
+        messageHeader.setTo(toAddressList);
+        messageHeader.setFrom(fromAddress);
 
         MessageBuilder messageBuilder = new MessageBuilder();
         messageBuilder.setHeader(messageHeader);
         messageBuilder.setHTMLBody(obj.getString("htmlBody"));
-
-        ArrayList<Address> toAddressList = new ArrayList();
-        toAddressList.add(toAddress);
 
         SMTPOperation smtpOperation = smtpSession.sendMessageOperation(fromAddress, toAddressList, messageBuilder.data());
         smtpOperation.start(new OperationCallback() {
