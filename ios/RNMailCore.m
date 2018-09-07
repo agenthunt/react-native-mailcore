@@ -34,6 +34,16 @@ RCT_EXPORT_METHOD(sendMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)
   [[builder header] setFrom:from];
   [[builder header] setTo:@[to]];
   [[builder header] setSubject:[RCTConvert NSString:obj[@"subject"]]];
+
+  if (obj[@"attachment"] != nil) {
+    NSDictionary* attachmentObj = [RCTConvert NSDictionary:obj[@"attachment"]];
+    NSData *base64String = [RCTConvert NSData:attachmentObj[@"data"]];
+    NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:base64String options:0];
+    MCOAttachment *attachment = [MCOAttachment attachmentWithData:decodedData
+                                                         filename:[RCTConvert NSString:attachmentObj[@"name"]]];
+    [builder addAttachment:attachment];
+  }
+
   [builder setHTMLBody:[RCTConvert NSString:obj[@"htmlBody"]]];
   NSData * rfc822Data = [builder data];
   
