@@ -2919,6 +2919,9 @@ react-devtools-core@^2.0.8:
     cross-env "^3.1.4"
     ws "^2.0.3"
 
+react-native-mailcore@../../:
+  version "0.0.1"
+
 react-native@0.43.3:
   version "0.43.3"
   resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.43.3.tgz#4f8e0d8d88827553789c02ef21cbc1afb68474d0"

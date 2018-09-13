@@ -16,7 +16,6 @@ public class RNMailCorePackage implements ReactPackage {
       return Arrays.<NativeModule>asList(new RNMailCoreModule(reactContext));
     }
 
-    //@Override
     public List<Class<? extends JavaScriptModule>> createJSModules() {
       return Collections.emptyList();
     }
