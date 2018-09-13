@@ -128,6 +128,41 @@ MailCore.sendMail({
   });
 ```
 
+* Send mail with a single attachment
+
+```javascript
+import MailCore from 'react-native-mailcore';
+
+MailCore.sendMail({
+  hostname: 'smtp.gmail.com',
+  port: 465,
+  username: '<gmail id>',
+  password: '<password>',
+  from: {
+    addressWithDisplayName: 'From Label',
+    mailbox: '<from email>'
+  },
+  to: {
+    addressWithDisplayName: 'To Label',
+    mailbox: '<to email>'
+  },
+  subject: 'Testing RN MailCore' + new Date(),
+  htmlBody: `<h1> How is it going </h1>
+              <p> Test message </p>
+            `,
+  attachment = {
+    name: 'attachment_file_name.png',
+    data: '<base64-encoded image data>'
+  }
+})
+  .then(result => {
+    alert(result.status);
+  })
+  .catch(error => {
+    alert(error);
+  });
+```
+
 ## TODO
 
 * [x] sendMail API support
