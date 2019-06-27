@@ -27,6 +27,7 @@ public class RNMailCoreModule extends ReactContextBaseJavaModule {
   public RNMailCoreModule(ReactApplicationContext reactContext) {
     super(reactContext);
     this.reactContext = reactContext;
+    this.mailClient = new MailClient();
   }
 
   @Override
@@ -35,7 +36,7 @@ public class RNMailCoreModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void sendMail(final ReadableMap obj, final Promise promise){
+  public void sendMail(final ReadableMap obj, final Promise promise) {
     getCurrentActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
@@ -85,6 +86,77 @@ public class RNMailCoreModule extends ReactContextBaseJavaModule {
         });
       }
     });
+  }
 
+  @ReactMethod
+  public void loginImap(final ReadableMap obj, final Promise promise){
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        UserCredential user = new UserCredential(obj);
+        mailClient.initIMAPSession(user,promise);
+      }
+    });
+  }
+
+  @ReactMethod
+  public void loginSmtp(final ReadableMap obj, final Promise promise){
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        UserCredential user = new UserCredential(obj);
+        mailClient.initSMTPSession(user,promise);
+      }
+    });
+  }
+
+  @ReactMethod
+  public void sendMail(final ReadableMap obj, final Promise promise){
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        //MailClient.sendMail(new SendMailData(obj), promise);
+      }
+    });
+  }
+
+  @ReactMethod
+  public void createFolder(final ReadableMap obj,final Promise promise) {
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mailClient.createFolderLabel(obj,promise);
+      }
+    });
+  }
+
+  @ReactMethod
+  public void renameFolder(final ReadableMap obj,final Promise promise) {
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mailClient.renameFolderLabel(obj,promise);
+      }
+    });
+  }
+
+  @ReactMethod
+  public void deleteFolder(final ReadableMap obj,final Promise promise) {
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mailClient.deleteFolderLabel(obj,promise);
+      }
+    });
+  }
+  
+  @ReactMethod
+  public void getFolders(final Promise promise) {
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mailClient.getFolders(promise);
+      }
+    });
   }
 }

@@ -127,8 +127,107 @@ MailCore.sendMail({
     alert(error);
   });
 ```
+  * Login smtp
+  ```javascript
+  MailCore.loginSmtp({
+    hostname: 'smtp.gmail.com',
+    port: 465,
+    username: 'email@gmail.com',
+    password: 'password',
+  }).then(result => {
+    alert(result.status);
+  })
+  .catch(error => {
+    alert(error);
+  });
+  ```
+  * Login imap
+  ```javascript
+  MailCore.loginImap({
+      hostname: 'imap.gmail.com',
+      port: 993,
+      username: 'email@gmail.com',
+      password: 'password',
+    }).then(result => {
+      alert(result.status);
+    })
+    .catch(error => {
+      alert(error);
+    });
+```
+  * Note: For any of the following methods you must first use loginImap
+  * Create folder
+```javascript
+  MailCore.createFolder({
+    folder: "newfoldername"
+  }).then(result => {
+    alert(result.status);
+  })
+  .catch(error => {
+    alert(error);
+  });
+  ```
 
+  * Rename folder
+  ```javascript
+  MailCore.renameFolder({
+    folderOldName: "oldFolderName",
+    folderNewName: "newFolderName"
+  }).then(result => {
+    alert(result.status);
+  })
+  .catch(error => {
+    alert(error);
+  });
+  ```
+
+  * Delete folder
+```javascript
+  MailCore.deleteFolder({
+    folder: "folderName"
+  }).then(result => {
+    alert(result.status);
+  })
+  .catch(error => {
+    alert(error);
+  });
+
+```
+  * List folders
+  ```javascript
+  MailCore.getFolders()
+  .then(result => {
+    const a = [...result.folders];
+    a.forEach(element => {
+      alert(element.path);
+    });
+  })
+  .catch(error => {
+      alert(error);
+  });
+
+```
 ## TODO
 
 * [x] sendMail API support
+* [x] createFolder API support for android
+* [x] renameFolder API support for android
+* [x] deleteFolder API support for android
+* [x] listFolders API support for android
+* [x] imapLogin API support for android
+* [x] smtpLogin API support for android
+* [ ] createFolder API support for ios
+* [ ] renameFolder API support for ios
+* [ ] deleteFolder API support for ios
+* [ ] listFolders API support for ios
+* [ ] imapLogin API support for ios
+* [ ] smtpLogin API support for ios
+* [ ] CopyEmail API support
+* [ ] MoveEmail API support
+* [ ] DeleteEmail API support
+* [ ] SendEmail with attachments API support
+* [ ] GetEmail API support
+* [ ] GetEmails API support
+* [ ] addFlags API support
+* [ ] deleteFlags API support
 * [ ] Expose other methods from libmailcore2 library
