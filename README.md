@@ -154,7 +154,7 @@ MailCore.sendMail({
     .catch(error => {
       alert(error);
     });
-```
+  ```
   * Note: For any of the following methods you must first use loginImap
   * Create folder
 ```javascript
@@ -166,7 +166,7 @@ MailCore.sendMail({
   .catch(error => {
     alert(error);
   });
-  ```
+```
 
   * Rename folder
   ```javascript
@@ -206,7 +206,7 @@ MailCore.sendMail({
       alert(error);
   });
 
-```
+  ```
 ## TODO
 
 * [x] sendMail API support

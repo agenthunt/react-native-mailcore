@@ -111,16 +111,6 @@ public class RNMailCoreModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void sendMail(final ReadableMap obj, final Promise promise){
-    getCurrentActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        //MailClient.sendMail(new SendMailData(obj), promise);
-      }
-    });
-  }
-
-  @ReactMethod
   public void createFolder(final ReadableMap obj,final Promise promise) {
     getCurrentActivity().runOnUiThread(new Runnable() {
       @Override
