@@ -36,59 +36,6 @@ public class RNMailCoreModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void sendMail(final ReadableMap obj, final Promise promise) {
-    getCurrentActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        SMTPSession smtpSession = new SMTPSession();
-        smtpSession.setHostname(obj.getString("hostname"));
-        smtpSession.setPort(obj.getInt("port"));
-        smtpSession.setUsername(obj.getString("username"));
-        smtpSession.setPassword(obj.getString("password"));
-        smtpSession.setAuthType(AuthType.AuthTypeSASLPlain);
-        smtpSession.setConnectionType(ConnectionType.ConnectionTypeTLS);
-
-        ReadableMap fromObj = obj.getMap("from");
-        Address fromAddress = new Address();
-        fromAddress.setDisplayName(fromObj.getString("addressWithDisplayName"));
-        fromAddress.setMailbox(fromObj.getString("mailbox"));
-
-        ReadableMap toObj = obj.getMap("to");
-        Address toAddress = new Address();
-        toAddress.setDisplayName(toObj.getString("addressWithDisplayName"));
-        toAddress.setMailbox(toObj.getString("mailbox"));
-
-        ArrayList<Address> toAddressList = new ArrayList();
-        toAddressList.add(toAddress);
-
-        MessageHeader messageHeader = new MessageHeader();
-        messageHeader.setSubject(obj.getString("subject"));
-        messageHeader.setTo(toAddressList);
-        messageHeader.setFrom(fromAddress);
-
-        MessageBuilder messageBuilder = new MessageBuilder();
-        messageBuilder.setHeader(messageHeader);
-        messageBuilder.setHTMLBody(obj.getString("htmlBody"));
-
-        SMTPOperation smtpOperation = smtpSession.sendMessageOperation(fromAddress, toAddressList, messageBuilder.data());
-        smtpOperation.start(new OperationCallback() {
-          @Override
-          public void succeeded() {
-            WritableMap result = Arguments.createMap();
-            result.putString("status", "SUCCESS");
-            promise.resolve(result);
-          }
-
-          @Override
-          public void failed(MailException e) {
-            promise.reject(String.valueOf(e.errorCode()), e.getMessage());
-          }
-        });
-      }
-    });
-  }
-
-  @ReactMethod
   public void loginImap(final ReadableMap obj, final Promise promise){
     getCurrentActivity().runOnUiThread(new Runnable() {
       @Override
@@ -146,6 +93,86 @@ public class RNMailCoreModule extends ReactContextBaseJavaModule {
       @Override
       public void run() {
         mailClient.getFolders(promise);
+      }
+    });
+  }
+  
+  @ReactMethod
+  public void moveEmail(final ReadableMap obj, final Promise promise) {
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mailClient.moveEmail(obj,promise);
+      }
+    });
+  }
+
+  @ReactMethod
+  public void permantDeleteEmail(final ReadableMap obj, final Promise promise) {
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mailClient.permantDelete(obj, promise);
+      }
+    });
+  }
+
+  @ReactMethod
+  public void actionFlagMessage(final ReadableMap obj, final Promise promise) {
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mailClient.ActionFlagMessage(obj, promise);
+      }
+    });
+  }
+
+  @ReactMethod
+  public void actionLabelMessage(final ReadableMap obj, final Promise promise) {
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mailClient.ActionLabelMessage(obj, promise);
+      }
+    });
+  }
+
+  @ReactMethod
+  public void sendMail(final ReadableMap obj, final Promise promise) {
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mailClient.sendMail(obj, promise);
+      }
+    });
+  }
+
+  @ReactMethod
+  public void getMail(final ReadableMap obj, final Promise promise) {
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mailClient.getMail(obj, promise);
+      }
+    });
+  }
+
+@ReactMethod
+  public void getAttachment(final ReadableMap obj, final Promise promise) {
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mailClient.getAttachment(obj, promise);
+      }
+    });
+  }
+
+  @ReactMethod
+  public void getMails(final ReadableMap obj, final Promise promise) {
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mailClient.getMails(obj, promise);
       }
     });
   }
