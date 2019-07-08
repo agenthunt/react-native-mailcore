@@ -379,3 +379,4 @@ import MailCore from 'react-native-mailcore';
 * [ ] SendEmail with attachments API support for ios
 * [ ] GetEmails API support for ios
 * [ ] Expose other methods from libmailcore2 library
+* [ ] Basic Example
