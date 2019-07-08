@@ -23,6 +23,7 @@ import java.util.ArrayList;
 public class RNMailCoreModule extends ReactContextBaseJavaModule {
 
   private final ReactApplicationContext reactContext;
+  private final MailClient mailClient;
 
   public RNMailCoreModule(ReactApplicationContext reactContext) {
     super(reactContext);

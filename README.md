@@ -359,32 +359,23 @@ import MailCore from 'react-native-mailcore';
 ## TODO
 
 
-* [x] createFolder API support for android
-* [x] renameFolder API support for android
-* [x] deleteFolder API support for android
-* [x] listFolders API support for android
-* [x] imapLogin API support for android
-* [x] smtpLogin API support for android
-* [x] GetEmail API support for android
+* [x] createFolder API support
+* [x] renameFolder API support
+* [x] deleteFolder API support
+* [x] listFolders API support
+* [x] imapLogin API support
+* [x] smtpLogin API support
+* [x] GetEmail API support
 * [x] MoveEmail API support for android
-* [x] DeleteEmail API support for android 
+* [x] DeleteEmail API support 
 * [x] Download attachment API support for android 
 * [x] SendEmail with attachments API support for android
-* [x] addFlags API support for for android
-* [x] deleteFlags API support for android
+* [x] addFlags API support
+* [x] deleteFlags API support
 * [x] GetEmails API support for android
-* [ ] sendMail API support for ios
-* [ ] createFolder API support for ios
-* [ ] renameFolder API support for ios
-* [ ] deleteFolder API support for ios
+* [ ] sendMail with attachment API support for ios
 * [ ] listFolders API support for ios
-* [ ] imapLogin API support for ios
-* [ ] smtpLogin API support for ios
 * [ ] MoveEmail API support for ios
-* [ ] DeleteEmail API support for ios
 * [ ] SendEmail with attachments API support for ios
-* [ ] GetEmail API support for ios
 * [ ] GetEmails API support for ios
-* [ ] addFlags API support for ios
-* [ ] deleteFlags API support for ios
 * [ ] Expose other methods from libmailcore2 library
