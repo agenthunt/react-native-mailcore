@@ -200,7 +200,7 @@ import MailCore from 'react-native-mailcore';
   
   * Permant Email Delete
 
-  ```javascript 
+  ```javascript
     MailCore.permantDeleteEmail({
       folderFrom: 'folder',
       messageId: messageId
@@ -211,7 +211,7 @@ import MailCore from 'react-native-mailcore';
     .catch(error => {
         alert(error);
     });
-	```
+  ```
   
   * Action Flag Message
   ```javascript
@@ -226,8 +226,9 @@ import MailCore from 'react-native-mailcore';
     })
     .catch(error => {
         alert(error);
+    
     });
-	```
+```
 	
   * Action label Message
   ```javascript  
@@ -243,7 +244,7 @@ import MailCore from 'react-native-mailcore';
     .catch(error => {
         alert(error);
     });
-	```
+```
 
   * Send Mail
   ```javascript
@@ -277,7 +278,7 @@ import MailCore from 'react-native-mailcore';
     .catch(error => {
         alert(error);
     });
-	```
+```
 
   * Get mail
   ```javascript
