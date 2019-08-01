@@ -1,77 +1,18 @@
 
-#import "RNMailCore.h"
 #import <MailCore/MailCore.h>
+#import "RNMailCore.h"
 #import <React/RCTConvert.h>
 
 @implementation RNMailCore
+  
 
 - (dispatch_queue_t)methodQueue
 {
   return dispatch_get_main_queue();
 }
+
 RCT_EXPORT_MODULE()
 
-RCT_EXPORT_METHOD(sendMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject)
-{
-  MCOMessageBuilder *messageBuilder = [[MCOMessageBuilder alloc] init];
-  if([obj objectForKey:@"headers"]) {
-    NSDictionary *headerObj = [RCTConvert NSDictionary:obj[@"headers"]];
-    for(id key in headerObj) {
-      [[messageBuilder header] setExtraHeaderValue:[headerObj objectForKey:key] forName:key];
-    }
-  }
-
-  NSDictionary *fromObj = [RCTConvert NSDictionary:obj[@"from"]];
-  [[messageBuilder header] setFrom:[MCOAddress addressWithDisplayName:[fromObj objectForKey:@"addressWithDisplayName"] mailbox:[fromObj objectForKey:@"mailbox"]]];
-
-  NSDictionary *toObj = [RCTConvert NSDictionary:obj[@"to"]];
-  NSMutableArray *toArray = [[NSMutableArray alloc] initWithObjects:nil];
-  for(id toKey in toObj) {
-    [toArray addObject:[MCOAddress addressWithDisplayName:[toObj objectForKey:toKey] mailbox:toKey]];
-  }
-  [[messageBuilder header] setTo:toArray];
-
-  if([obj objectForKey:@"cc"]) {
-    NSDictionary *ccObj = [RCTConvert NSDictionary:obj[@"cc"]];
-    NSMutableArray *ccArray = [[NSMutableArray alloc] initWithObjects:nil];
-    for(id ccKey in ccObj) {
-      [ccArray addObject:[MCOAddress addressWithDisplayName:[ccObj objectForKey:ccKey] mailbox:ccKey]];
-    }
-    [[messageBuilder header] setCc:ccArray];
-  }
-
-  if([obj objectForKey:@"bcc"]) {
-    NSDictionary *bccObj = [RCTConvert NSDictionary:obj[@"bcc"]];
-    NSMutableArray *bccArray = [[NSMutableArray alloc] initWithObjects:nil];
-    for(id bccKey in bccObj) {
-      [bccArray addObject:[MCOAddress addressWithDisplayName:[bccObj objectForKey:bccKey] mailbox:bccKey]];
-    }
-    [[messageBuilder header] setBcc:bccArray];
-  }
-
-  if([obj objectForKey:@"subject"]) {
-    [[messageBuilder header] setSubject:[RCTConvert NSString:obj[@"subject"]]];
-  }
-
-  if([obj objectForKey:@"body"]) {
-    [messageBuilder setHTMLBody:[RCTConvert NSString:obj[@"body"]]];
-  }
-
-  if([obj objectForKey:@"attachments"]) {
-    // TODO
-  }
-
-  MCOSMTPSendOperation *sendOperation = [_smtpObject sendOperationWithData:[messageBuilder data]];
-  [sendOperation start:^(NSError *error) {
-      if(error) {
-        reject(@"Error", error.localizedDescription, error);
-      } else {
-        NSDictionary *result = @{@"status": @"SUCCESS"};
-        resolve(result);
-      }
-  }];
-}
 
 
 
@@ -177,6 +118,10 @@ RCT_EXPORT_METHOD(getFolders:(RCTPromiseResolveBlock)resolve
         for(int i=0;i < fetchedFolders.count;i++) {
           MCOIMAPFolder *folder = fetchedFolders[i];
           NSDictionary *mapFolder = @{@"folder": folder.path};
+          // TODO:
+          //REVISAR LO QUE DEVULVE FLAGS
+          //MCOIMAPFolderFlag *flag = folder.flags;
+          //mapFolder = @{@"flags": (NSInteger)flag};
           [mystr addObject:mapFolder];
         }
         NSDictionary *result = @{@"status": @"SUCCESS"};
@@ -186,7 +131,6 @@ RCT_EXPORT_METHOD(getFolders:(RCTPromiseResolveBlock)resolve
       }
     }];
 }
-
 
 RCT_EXPORT_METHOD(actionFlagMessage:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
@@ -229,6 +173,25 @@ RCT_EXPORT_METHOD(actionLabelMessage:(NSDictionary *)obj resolver:(RCTPromiseRes
     }];
 }
 
+RCT_EXPORT_METHOD(moveEmail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+  NSString *folderFrom = [RCTConvert NSString:obj[@"folderFrom"]];
+  NSNumber *messageId = [RCTConvert NSNumber:obj[@"messageId"]];
+  unsigned long long valueUInt64 = messageId.unsignedLongLongValue;
+  MCOIndexSet *uid = [MCOIndexSet indexSetWithIndex:valueUInt64];
+  NSString *folderTo = [RCTConvert NSString:obj[@"folderTo"]];
+  MCOIMAPCopyMessagesOperation *imapOperation = [_imapObject copyMessagesOperationWithFolder:folderFrom uids:uid destFolder:folderTo];
+  [imapOperation start:^(NSError *error, NSDictionary * uidMapping) {
+      if(error) {
+        reject(@"Error", error.localizedDescription, error);
+      } else {
+        //[self permantDelete:obj resolver:resolve rejecter:reject];
+        NSDictionary *result = @{@"status": @"SUCCESS"};
+        resolve(result);
+      }
+    }];
+}
 
 RCT_EXPORT_METHOD(permantDeleteEmail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
@@ -255,6 +218,75 @@ RCT_EXPORT_METHOD(permantDeleteEmail:(NSDictionary *)obj resolver:(RCTPromiseRes
     }];
 }
 
+RCT_EXPORT_METHOD(sendMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+  MCOMessageBuilder *messageBuilder = [[MCOMessageBuilder alloc] init];
+  if([obj objectForKey:@"headers"]) {
+    NSDictionary *headerObj = [RCTConvert NSDictionary:obj[@"headers"]];
+    for(id key in headerObj) {
+      [[messageBuilder header] setExtraHeaderValue:[headerObj objectForKey:key] forName:key];
+    }
+  }
+
+  NSDictionary *fromObj = [RCTConvert NSDictionary:obj[@"from"]];
+  [[messageBuilder header] setFrom:[MCOAddress addressWithDisplayName:[fromObj objectForKey:@"addressWithDisplayName"] mailbox:[fromObj objectForKey:@"mailbox"]]];
+
+  NSDictionary *toObj = [RCTConvert NSDictionary:obj[@"to"]];
+  NSMutableArray *toArray = [[NSMutableArray alloc] initWithObjects:nil];
+  for(id toKey in toObj) {
+    [toArray addObject:[MCOAddress addressWithDisplayName:[toObj objectForKey:toKey] mailbox:toKey]];
+  }
+  [[messageBuilder header] setTo:toArray];
+
+  if([obj objectForKey:@"cc"]) {
+    NSDictionary *ccObj = [RCTConvert NSDictionary:obj[@"cc"]];
+    NSMutableArray *ccArray = [[NSMutableArray alloc] initWithObjects:nil];
+    for(id ccKey in ccObj) {
+      [ccArray addObject:[MCOAddress addressWithDisplayName:[ccObj objectForKey:ccKey] mailbox:ccKey]];
+    }
+    [[messageBuilder header] setCc:ccArray];
+  }
+
+  if([obj objectForKey:@"bcc"]) {
+    NSDictionary *bccObj = [RCTConvert NSDictionary:obj[@"bcc"]];
+    NSMutableArray *bccArray = [[NSMutableArray alloc] initWithObjects:nil];
+    for(id bccKey in bccObj) {
+      [bccArray addObject:[MCOAddress addressWithDisplayName:[bccObj objectForKey:bccKey] mailbox:bccKey]];
+    }
+    [[messageBuilder header] setBcc:bccArray];
+  }
+
+  if([obj objectForKey:@"subject"]) {
+    [[messageBuilder header] setSubject:[RCTConvert NSString:obj[@"subject"]]];
+  }
+
+  if([obj objectForKey:@"body"]) {
+    [messageBuilder setHTMLBody:[RCTConvert NSString:obj[@"body"]]];
+  }
+
+  if([obj objectForKey:@"attachments"]) {
+    // TODO
+    NSArray *attachmentObj = [RCTConvert NSArray:obj[@"attachments"]];
+    for(id attachment in attachmentObj) {
+      NSURL *documentsURL = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+      documentsURL = [documentsURL URLByAppendingPathComponent:attachment];
+      NSData *fileData = [NSData dataWithContentsOfURL:documentsURL];
+      MCOAttachment *attach = [MCOAttachment attachmentWithData:fileData filename:attachment];
+      [messageBuilder addAttachment:attach];
+    }
+  }
+
+  MCOSMTPSendOperation *sendOperation = [_smtpObject sendOperationWithData:[messageBuilder data]];
+  [sendOperation start:^(NSError *error) {
+      if(error) {
+        reject(@"Error", error.localizedDescription, error);
+      } else {
+        NSDictionary *result = @{@"status": @"SUCCESS"};
+        resolve(result);
+      }
+  }];
+}
 
 RCT_EXPORT_METHOD(getMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
@@ -334,16 +366,71 @@ RCT_EXPORT_METHOD(getMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)r
       reject(@"Error", error.localizedDescription, error);
       } else {
           MCOMessageParser *messageParser = [[MCOMessageParser alloc] initWithData:data];
-          
           NSString *msgHTMLBody = [messageParser htmlBodyRendering];
           [result setValue:msgHTMLBody forKey:@"body"];
           [result setObject:@"SUCCESS" forKey:@"status"];
-          resolve(result);
+          
       }
+      resolve(result);
     }];
   }
 }];
 }
+
+RCT_EXPORT_METHOD(getAttachment:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+  NSString *filename = [RCTConvert NSString:obj[@"filename"]];
+  NSString *folder = [RCTConvert NSString:obj[@"folder"]];
+  NSNumber *messageId = [RCTConvert NSNumber:obj[@"messageId"]];
+  NSString *partID = [RCTConvert NSString:obj[@"partID"]];
+  NSString *folderOutput = [RCTConvert NSString:obj[@"folderOutput"]];
+  unsigned long long valueUInt64 = messageId.unsignedLongLongValue;
+  MCOIndexSet *uid = [MCOIndexSet indexSetWithIndex:valueUInt64];
+  MCOIMAPMessagesRequestKind requestKind = MCOIMAPMessagesRequestKindHeaders | MCOIMAPMessagesRequestKindStructure | MCOIMAPMessagesRequestKindInternalDate | MCOIMAPMessagesRequestKindHeaderSubject | MCOIMAPMessagesRequestKindFlags;
+  MCOIMAPFetchMessagesOperation *fetchOperation = [_imapObject fetchMessagesOperationWithFolder:folder requestKind:requestKind uids:uid];
+  [fetchOperation start:^(NSError * error, NSArray * fetchedMessages, MCOIndexSet * vanishedMessages) {
+      if(error) {
+          reject(@"Error", error.localizedDescription, error);
+      } else {
+          MCOIMAPMessage *message = [fetchedMessages objectAtIndex:0];
+          MCOIMAPFetchContentOperation *op = [_imapObject fetchMessageByUIDOperationWithFolder:folder uid:message.uid];
+          [op start:^(NSError * error, NSData * data) {
+              if(error || !data) {
+                  reject(@"Error", error.localizedDescription, error);
+              }
+              
+              if ([message.attachments count] > 0)
+              {
+                  for (int k = 0; k < [message.attachments count]; k++) {
+                      MCOIMAPPart *part = [message.attachments objectAtIndex:k];
+                      if([part.filename isEqualToString:filename]) {
+                          NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+                          NSString *saveDirectory = [paths objectAtIndex:0];
+                          NSString *attachmentPath = [saveDirectory stringByAppendingPathComponent:part.filename];
+                          BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:attachmentPath];
+                          NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+                          [result setValue:attachmentPath forKey:@"url"];
+                          if (fileExists) {
+                            [result setObject:@"FILE EXIST!" forKey:@"status"];
+                          }
+                          else{
+                              [result setObject:@"FILE SAVE WITH SUCCESS!" forKey:@"status"];
+                              [data writeToFile:attachmentPath atomically:YES];
+                          }
+                         resolve(result);
+                      } 
+                       
+                  }
+              } else {
+                 NSDictionary *result = @{@"status": @"SUCCESS"};
+                resolve(result);
+              }
+          }];
+      }
+  }];
+}
+
 
 - (instancetype)initSmtp:(MCOSMTPSession *)smtpObject {
     self = [super init];
@@ -352,6 +439,7 @@ RCT_EXPORT_METHOD(getMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)r
     }
     return self;
 }
+
 
 - (MCOSMTPSession *)getSmtpObject {
         return _smtpObject;
@@ -368,4 +456,5 @@ RCT_EXPORT_METHOD(getMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)r
 - (MCOIMAPSession *)getImapObject {
         return _imapObject;
     }
+
 @end

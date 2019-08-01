@@ -199,6 +199,7 @@ public class MailClient {
             }
         }
         
+        
         SMTPOperation smtpOperation = smtpSession.sendMessageOperation(fromAddress, toAddressList, messageBuilder.data());
         smtpOperation.start(new OperationCallback() {
         @Override
@@ -507,6 +508,7 @@ public class MailClient {
         });
     }
 
+
     public void getAttachment(final ReadableMap obj, final Promise promise) {
         final String filename = obj.getString("filename");
         String folderId = obj.getString("folder");
@@ -542,5 +544,7 @@ public class MailClient {
                 promise.reject(String.valueOf(e.errorCode()), e.getMessage());
             }
         });
-    }   
+    }
+
+    
 }

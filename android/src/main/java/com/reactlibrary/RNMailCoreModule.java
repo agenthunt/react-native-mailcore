@@ -177,4 +177,5 @@ public class RNMailCoreModule extends ReactContextBaseJavaModule {
       }
     });
   }
+
 }

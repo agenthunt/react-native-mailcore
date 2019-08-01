@@ -366,17 +366,11 @@ import MailCore from 'react-native-mailcore';
 * [x] imapLogin API support
 * [x] smtpLogin API support
 * [x] GetEmail API support
-* [x] MoveEmail API support for android
+* [x] MoveEmail API support 
 * [x] DeleteEmail API support 
-* [x] Download attachment API support for android 
-* [x] SendEmail with attachments API support for android
+* [x] Download attachment 
+* [x] SendEmail with attachments
 * [x] addFlags API support
 * [x] deleteFlags API support
-* [x] GetEmails API support for android
-* [ ] sendMail with attachment API support for ios
-* [ ] listFolders API support for ios
-* [ ] MoveEmail API support for ios
-* [ ] SendEmail with attachments API support for ios
-* [ ] GetEmails API support for ios
-* [ ] Expose other methods from libmailcore2 library
+* [x] GetEmails API support
 * [ ] Basic Example
