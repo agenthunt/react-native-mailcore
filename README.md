@@ -97,7 +97,9 @@ react native bindings for https://github.com/MailCore/mailcore2
 
 ## Usage
 * Note: For any of the following methods you must first use loginImap
+* Note: For SendMail method you must first use loginSmtp
 * Note: For the use of attachments download remember to give permission to the application
+
 ```javascript
 import MailCore from 'react-native-mailcore';
 ```
