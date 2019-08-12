@@ -1,0 +1,12 @@
+export const UID = 0;
+export const FLAGS = 1;
+export const HEADERS = 2;
+export const STRUCTURE = 4;
+export const INTERNAL_DATE = 8;
+export const FULL_HEADERS = 16;
+export const HEADER_SUBJECT = 32;
+export const GMAIL_LABELS = 64;
+export const GMAIL_MESSAGE_ID = 128;
+export const GMAIL_THREAD_ID = 256;
+export const EXTRA_HEADERS = 512;
+export const SIZE = 1024;

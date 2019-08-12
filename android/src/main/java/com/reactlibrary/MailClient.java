@@ -221,6 +221,16 @@ public class MailClient {
         int messageId = obj.getInt("messageId"); 
         int requestKind = obj.getInt("requestKind");
         final IMAPFetchMessagesOperation messagesOperation = imapSession.fetchMessagesByUIDOperation(folder, requestKind, IndexSet.indexSetWithIndex(messageId));
+
+        if (obj.hasKey("headers")) {
+            ReadableArray headersArray = obj.getArray("headers");
+            List<String> extraHeaders = new ArrayList<>();
+            for (int i = 0; headersArray.size() > i; i++) {
+                extraHeaders.add(headersArray.getString(i));
+            }
+            messagesOperation.setExtraHeaders(extraHeaders);
+        }
+
         messagesOperation.start(new OperationCallback() {
             @Override
             public void succeeded() {
@@ -236,10 +246,11 @@ public class MailClient {
                     public void succeeded() {
                         WritableMap mailData = Arguments.createMap();
                         final Long uid = message.uid();
-                        mailData.putString("id", uid.toString());
+                        mailData.putInt("id", uid.intValue());
                         mailData.putString("date", message.header().date().toString());
                         WritableMap fromData = Arguments.createMap();
                         fromData.putString("mailbox", message.header().from().mailbox());
+                        mailData.putInt("flags", message.flags());
                         fromData.putString("displayName", message.header().from().displayName());
                         mailData.putMap("from", fromData);
                         WritableMap toData = Arguments.createMap();
@@ -284,6 +295,15 @@ public class MailClient {
                             }
                         }
                         mailData.putMap("attachments", attachmentsData);
+
+                        WritableMap headerData = Arguments.createMap();
+                        ListIterator<String> headerIterator = message.header().allExtraHeadersNames().listIterator();
+                        while(headerIterator.hasNext()){
+                            String headerKey = headerIterator.next();
+                            headerData.putString(headerKey, message.header().extraHeaderValueForName(headerKey));
+                        }
+                        mailData.putMap("headers", headerData);
+
                         mailData.putString("status", "success");
                         promise.resolve(mailData);
                     }
@@ -468,6 +488,16 @@ public class MailClient {
         int requestKind = obj.getInt("requestKind");
         IndexSet indexSet = IndexSet.indexSetWithRange(new Range(1, Long.MAX_VALUE));
         final IMAPFetchMessagesOperation messagesOperation = imapSession.fetchMessagesByUIDOperation(folder, requestKind, indexSet);
+
+        if (obj.hasKey("headers")) {
+            ReadableArray headersArray = obj.getArray("headers");
+            List<String> extraHeaders = new ArrayList<>();
+            for (int i = 0; headersArray.size() > i; i++) {
+                extraHeaders.add(headersArray.getString(i));
+            }
+            messagesOperation.setExtraHeaders(extraHeaders);
+        }
+
         final WritableMap result = Arguments.createMap();
         final WritableArray mails = Arguments.createArray();
         messagesOperation.start(new OperationCallback() {
@@ -478,7 +508,6 @@ public class MailClient {
                     promise.reject("Mails not found!");
                     return;
                 }
-                ArrayList arrayData = new ArrayList<>();
                 for (final IMAPMessage message: messages) {
                     final WritableMap mailData = Arguments.createMap();
                     WritableMap headerData = Arguments.createMap();
@@ -487,9 +516,10 @@ public class MailClient {
                         String headerKey = headerIterator.next();
                         headerData.putString(headerKey, message.header().extraHeaderValueForName(headerKey));
                     }
-                    Long mailId = message.uid();
                     mailData.putMap("headers", headerData);
+                    Long mailId = message.uid();
                     mailData.putInt("id", mailId.intValue());
+                    mailData.putInt("flags", message.flags());
                     mailData.putString("from", message.header().from().displayName());
                     mailData.putString("subject", message.header().subject());
                     mailData.putString("date", message.header().date().toString());
