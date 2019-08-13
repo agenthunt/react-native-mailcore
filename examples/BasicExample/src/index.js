@@ -14,8 +14,8 @@ export default class BasicExample extends Component {
     MailCore.loginImap({
       hostname: 'imap.gmail.com',
       port: 993,
-      username: 'atmmailtest2019@gmail.com',
-      password: 'Origin2019',
+      username: 'user@gmail.com',
+      password: 'password',
     }).then(result => {
       alert(result.status);
     })
@@ -28,8 +28,8 @@ export default class BasicExample extends Component {
     MailCore.loginSmtp({
       hostname: 'smtp.gmail.com',
       port: 465,
-      username: 'atmmailtest2019@gmail.com',
-      password: 'Origin2019',
+      username: 'user@gmail.com',
+      password: 'password',
     }).then(result => {
       alert(result.status);
     })
@@ -40,7 +40,7 @@ export default class BasicExample extends Component {
 
   createFolder() {
     MailCore.createFolder({
-      folder: "Exito"
+      folder: "newfolder"
     }).then(result => {
       alert(result.status);
     })
@@ -51,7 +51,7 @@ export default class BasicExample extends Component {
 
   deleteFolder() {
     MailCore.deleteFolder({
-      folder: "MarcosTest"
+      folder: "changedNameFolder"
     }).then(result => {
       alert(result.status);
     })
@@ -62,8 +62,8 @@ export default class BasicExample extends Component {
 
   renameFolder() {
     MailCore.renameFolder({
-      folderOldName: "Exito",
-      folderNewName: "MarcosTest"
+      folderOldName: "newfolder",
+      folderNewName: "changedNameFolder"
     }).then(result => {
       alert(result.status);
     })
@@ -131,7 +131,7 @@ export default class BasicExample extends Component {
       folder: "INBOX",
       messageId: 17,
       flagsRequestKind: FlagsRequestKind.ADD,
-      tags: ["uno","dos","tres"]
+      tags: ["one","two","three"]
     })
     .then(result => {
         alert(result.status);
@@ -143,28 +143,28 @@ export default class BasicExample extends Component {
 
   sendMail() {
     alert(new Date());
-    let subject = "Este es un mensaje para probar el envio de email"
-    let body = "<div>Este es el body del mail de prueba<blockquote>Test</blockquote></div>"
+    let subject = "this is subject mail"
+    let body = "<div>New body for new email<blockquote>this quote</blockquote></div>"
     MailCore.sendMail({
       headers: {
         isEncrypted: "true"
       },
       from: {
         addressWithDisplayName: 'Marcos Prosperi',
-        mailbox: 'atmmailtest2019@gmail.com'
+        mailbox: 'email@gmail.com'
       },
       to: {
-        "mprosperi@originsoftware.com.ar": 'Marcos Prosperi',
-        "mprosperi@gmail.com": 'Marcos Prosperi',
-        "atmmailtest2019@gmail.com": 'Mail test account'
+        "test2@mail.com.ar": 'Loren Ipsun',
+        "test1@gmail.com": 'Ipsun Loren',
+        "test@gmail.com": 'Mail test account'
       },
       cc: {
-        "mprosperi@originsoftware.com.ar": 'Marcos Prosperi',
-        "mprosperi@gmail.com": 'Marcos Prosperi'
+        "test@gmail.com": 'name lastname',
+        "test@gmail.com": 'name lastname'
       },
       bcc: {
-        "mprosperi@originsoftware.com.ar": 'Marcos Prosperi',
-        "mprosperi@gmail.com": 'Marcos Prosperi'
+        "test@gmail.com": 'name lastname',
+        "test@gmail.com": 'name lastname'
       },
       subject: subject,
       body: body,
