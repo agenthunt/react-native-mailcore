@@ -1,44 +1,312 @@
 import React, { Component } from 'react';
-import {
-  AppRegistry,
-  StyleSheet,
-  Text,
-  View,
-  Button
-} from 'react-native';
+import { Alert, AppRegistry, Button, StyleSheet, View } from 'react-native';
 import MailCore from 'react-native-mailcore';
+import * as FlagsRequestKind from './constants/FlagsRequestKind';
+import * as IMAPMessagesRequestKind from './constants/IMAPMessagesRequestKind';
+import * as MessageFlag from './constants/MessageFlag';
 
 export default class BasicExample extends Component {
-  sendMail = () => MailCore.sendMail({
-    hostname: 'smtp.gmail.com',
-    port: 465,
-    username: '<gmail id>',
-    password: '<password>',
-    from: {
-      addressWithDisplayName: 'From Label',
-      mailbox: '<from email>'
-    },
-    to: {
-      addressWithDisplayName: 'To Label',
-      mailbox: '<to email>'
-    },
-    subject: 'Testing RN MailCore' + new Date(),
-    htmlBody: `<h1> How is it going </h1>
-              <p> Test message </p>
-            `
-  }).then((result) => {
-    alert(result.status);
-  }).catch((error) => {
-    alert(error);
-  })
-  render() {
+  _onPressButton() {
+    Alert.alert('You tapped the button!')
+  }
+
+  loginImap() {
+    MailCore.loginImap({
+      hostname: 'imap.gmail.com',
+      port: 993,
+      username: 'atmmailtest2019@gmail.com',
+      password: 'Origin2019',
+    }).then(result => {
+      alert(result.status);
+    })
+    .catch(error => {
+      alert(error);
+    });
+  }
+
+  loginSmtp() {
+    MailCore.loginSmtp({
+      hostname: 'smtp.gmail.com',
+      port: 465,
+      username: 'atmmailtest2019@gmail.com',
+      password: 'Origin2019',
+    }).then(result => {
+      alert(result.status);
+    })
+    .catch(error => {
+      alert(error);
+    });
+  }
+
+  createFolder() {
+    MailCore.createFolder({
+      folder: "Exito"
+    }).then(result => {
+      alert(result.status);
+    })
+    .catch(error => {
+      alert(error);
+    });
+  }
+
+  deleteFolder() {
+    MailCore.deleteFolder({
+      folder: "MarcosTest"
+    }).then(result => {
+      alert(result.status);
+    })
+    .catch(error => {
+      alert(error);
+    });
+  } 
+
+  renameFolder() {
+    MailCore.renameFolder({
+      folderOldName: "Exito",
+      folderNewName: "MarcosTest"
+    }).then(result => {
+      alert(result.status);
+    })
+    .catch(error => {
+      alert(error);
+    });
+  }
+
+  getFolders() {
+    MailCore.getFolders()
+    .then(result => {
+      console.log(result);
+    })
+    .catch(error => {
+        alert(error);
+    });
+  }
+
+  moveEmail() {
+    MailCore.moveEmail({
+      folderFrom: "INBOX",
+      messageId: 18,
+      folderTo: "test"
+    })
+    .then(result => {
+      alert(result.status);
+    })
+    .catch(error => {
+        alert(error);
+    });
+  }
+
+  permantDeleteEmail() {
+    MailCore.permantDeleteEmail({
+      folderFrom: "INBOX",
+      messageId: 18
+    })
+    .then(result => {
+        alert(result.status);
+    })
+    .catch(error => {
+        alert(error);
+    });
+  }
+
+  flagMessage() {
+    MailCore.actionFlagMessage({
+      folder: "INBOX",
+      messageId: 17,
+      flagsRequestKind: FlagsRequestKind.ADD,
+      messageFlag: MessageFlag.SEEN
+    })
+    .then(result => {
+        alert(result.status);
+    })
+    .catch(error => {
+        alert(error);
+    });
+  }
+
+  labelMessage() {
+    const m = new Map()
+    m.set([0, 'red'], [1, 'blue'], [2, 'yellow'], [3, 'orange'])
+    MailCore.actionLabelMessage({
+      folder: "INBOX",
+      messageId: 17,
+      flagsRequestKind: FlagsRequestKind.ADD,
+      tags: ["uno","dos","tres"]
+    })
+    .then(result => {
+        alert(result.status);
+    })
+    .catch(error => {
+        alert(error);
+    });
+  }
+
+  sendMail() {
+    alert(new Date());
+    let subject = "Este es un mensaje para probar el envio de email"
+    let body = "<div>Este es el body del mail de prueba<blockquote>Test</blockquote></div>"
+    MailCore.sendMail({
+      headers: {
+        isEncrypted: "true"
+      },
+      from: {
+        addressWithDisplayName: 'Marcos Prosperi',
+        mailbox: 'atmmailtest2019@gmail.com'
+      },
+      to: {
+        "mprosperi@originsoftware.com.ar": 'Marcos Prosperi',
+        "mprosperi@gmail.com": 'Marcos Prosperi',
+        "atmmailtest2019@gmail.com": 'Mail test account'
+      },
+      cc: {
+        "mprosperi@originsoftware.com.ar": 'Marcos Prosperi',
+        "mprosperi@gmail.com": 'Marcos Prosperi'
+      },
+      bcc: {
+        "mprosperi@originsoftware.com.ar": 'Marcos Prosperi',
+        "mprosperi@gmail.com": 'Marcos Prosperi'
+      },
+      subject: subject,
+      body: body,
+      attachments: ["eso ya se vio.jpg","GOOGLE.JPG","IMG_0007.JPG"]
+    })
+    .then(result => {
+        alert(result.status);
+    })
+    .catch(error => {
+        alert(error);
+    });
+  }
+
+
+
+  getMail() {
+    let requestKind = IMAPMessagesRequestKind.HEADERS | IMAPMessagesRequestKind.STRUCTURE | IMAPMessagesRequestKind.INTERNAL_DATE | 
+    IMAPMessagesRequestKind.HEADER_SUBJECT | IMAPMessagesRequestKind.FLAGS | IMAPMessagesRequestKind.EXTRA_HEADERS
+    MailCore.getMail({
+      folder: "INBOX",
+      messageId: 22,
+      requestKind: requestKind,
+      headers: ['isEncrypted']
+    })
+    .then(result => { 
+      alert("getMail then");
+      console.log(result);
+    })
+    .catch(error => {
+        alert(error);
+    });
+  }
+
+  getAttachment() {
+    let requestKind = IMAPMessagesRequestKind.HEADERS | IMAPMessagesRequestKind.STRUCTURE | IMAPMessagesRequestKind.INTERNAL_DATE | 
+    IMAPMessagesRequestKind.HEADER_SUBJECT | IMAPMessagesRequestKind.FLAGS | IMAPMessagesRequestKind.EXTRA_HEADERS;
+    MailCore.getAttachment({
+      filename: "eso ya se vio.jpg",
+      folder: "INBOX",
+      messageId: 18,
+      partID: "3",
+      encoding: 3,
+      folderOutput: "/storage/emulated/0/directoryDrop/",
+      requestKind: requestKind
+    })
+    .then(result => {
+      console.log(result);
+    })
+    .catch(error => {
+        alert(error);
+    });
+  }
+
+
+  getMails() {
+    let requestKind = IMAPMessagesRequestKind.HEADERS | IMAPMessagesRequestKind.STRUCTURE | 
+      IMAPMessagesRequestKind.INTERNAL_DATE | IMAPMessagesRequestKind.HEADER_SUBJECT | 
+      IMAPMessagesRequestKind.FLAGS | IMAPMessagesRequestKind.EXTRA_HEADERS;
+    let folder = "INBOX";
+    MailCore.getMails({
+      folder: folder,
+      requestKind: requestKind,
+      headers: ['isEncrypted']
+    })
+    .then(result => {
+      alert(result.mails.length);
+      console.log(result);
+    })
+    .catch(error => {
+        alert(error);
+    });
+  }
+
+  render() {  
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native MailCore!
-        </Text>
-        <Button title="Send Mail" onPress={this.sendMail}
-        />
+        <View style={styles.buttonContainer}>
+          <Button
+            onPress={this.loginImap}
+            title="Test Login Imap"
+          />
+                <Button
+            onPress={this.loginSmtp}
+            title="Test Login smtp"
+            color="#841584"
+          />
+        </View>
+        <View >
+          <Button 
+            onPress={this.createFolder}
+            title="Create folder"
+          />
+            <Button 
+            onPress={this.renameFolder}
+            title="Rename Folder"
+          />
+            <Button 
+            onPress={this.deleteFolder}
+            title="Delete Folder"
+          />
+        
+        
+          <Button 
+            onPress={this.getFolders}
+            title="List Folders"
+          />
+        
+        
+        <Button 
+            onPress={this.sendMail}
+            title="Send Email"
+          />
+        <Button 
+            onPress={this.moveEmail}
+            title="Move Email"
+          />
+          <Button 
+            onPress={this.permantDeleteEmail}
+            title="Permant Delete"
+          />
+          <Button 
+            onPress={this.getMail}
+            title="getMail"
+          />
+          <Button 
+            onPress={this.getMails}
+            title="getMails"
+          />
+          <Button 
+            onPress={this.getAttachment}
+            title="getAttachment"
+          />
+        
+          <Button 
+            onPress={this.flagMessage}
+            title="Actions Flag Message"
+          />
+          <Button 
+            onPress={this.labelMessage}
+            title="Actions label Message"
+          />
+        </View>
       </View>
     );
   }
@@ -46,21 +314,25 @@ export default class BasicExample extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+   flex: 1,
+   justifyContent: 'center',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
+  buttonContainer: {
+    margin: 20
   },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
+  alternativeLayoutButtonContainer: {
+    margin: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  item: {
+    padding: 10,
+    fontSize: 18,
+    height: 44,
+  },
+  buttonStyle: {
     marginBottom: 5,
-  },
+  }
 });
 
 AppRegistry.registerComponent('BasicExample', () => BasicExample);
