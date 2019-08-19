@@ -4,6 +4,7 @@ import MailCore from 'react-native-mailcore';
 import * as FlagsRequestKind from './constants/FlagsRequestKind';
 import * as IMAPMessagesRequestKind from './constants/IMAPMessagesRequestKind';
 import * as MessageFlag from './constants/MessageFlag';
+import * as Connection from './constants/Connection';
 
 export default class BasicExample extends Component {
   _onPressButton() {
@@ -12,10 +13,10 @@ export default class BasicExample extends Component {
 
   loginImap() {
     MailCore.loginImap({
-      hostname: 'imap.gmail.com',
-      port: 993,
-      username: 'user@gmail.com',
-      password: 'password',
+      hostname: Connection.TEST_IMAP_HOSTNAME,
+      port: Connection.TEST_PORT_IMAP,
+      username: Connection.TEST_USERNAME,
+      password: Connection.TEST_PASSWORD,
     }).then(result => {
       alert(result.status);
     })
@@ -26,10 +27,10 @@ export default class BasicExample extends Component {
 
   loginSmtp() {
     MailCore.loginSmtp({
-      hostname: 'smtp.gmail.com',
-      port: 465,
-      username: 'user@gmail.com',
-      password: 'password',
+      hostname: Connection.TEST_SMTP_HOSTNAME,
+      port: Connection.TEST_PORT_STMP,
+      username: Connection.TEST_USERNAME,
+      password: Connection.TEST_PASSWORD,
     }).then(result => {
       alert(result.status);
     })
