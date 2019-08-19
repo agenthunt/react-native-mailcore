@@ -13,7 +13,12 @@
     "type": "git",
     "url": "git+https://github.com/agenthunt/react-native-mailcore.git"
   },
-  "keywords": ["react-native", "sendmail", "email", "smtp"],
+  "keywords": [
+    "react-native",
+    "sendmail",
+    "email",
+    "smtp"
+  ],
   "author": "Shailesh",
   "license": "ISC",
   "peerDependencies": {
