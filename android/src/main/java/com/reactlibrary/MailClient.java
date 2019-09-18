@@ -407,11 +407,15 @@ public class MailClient {
                 promise.reject(String.valueOf(e.errorCode()), e.getMessage());
             }
         });
+		 
+        WritableMap permantDeleteRequest = Arguments.createMap();
+        permantDeleteRequest.putString("folder", from);
+        permantDeleteRequest.putInt("messageId", messageId);
         permantDelete(obj,promise);
     }
 
     public void permantDelete(final ReadableMap obj, final Promise promise) {
-        String folder = obj.getString("folderFrom");
+         String folder = obj.getString("folder");
         int messageId = obj.getInt("messageId");
         IMAPOperation imapOperation = imapSession.storeFlagsByUIDOperation(folder,IndexSet.indexSetWithIndex(messageId), 0, MessageFlag.MessageFlagDeleted);
         imapOperation.start(new OperationCallback() {

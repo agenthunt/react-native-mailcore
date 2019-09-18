@@ -13,6 +13,9 @@
 
 RCT_EXPORT_MODULE()
 
+
+
+
 RCT_EXPORT_METHOD(loginSmtp:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -122,6 +125,8 @@ RCT_EXPORT_METHOD(getFolders:(RCTPromiseResolveBlock)resolve
           NSDictionary *mapFolder = @{@"folder": folder.path};
             
           [folders addObject:folderObject];
+			 
+							 
         }
         resolve(folders);
       }
@@ -182,9 +187,21 @@ RCT_EXPORT_METHOD(moveEmail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock
       if(error) {
         reject(@"Error", error.localizedDescription, error);
       } else {
-        //[self permantDelete:obj resolver:resolve rejecter:reject];
-        NSDictionary *result = @{@"status": @"SUCCESS"};
-        resolve(result);
+          MCOIMAPOperation *deleteOperation = [_imapObject storeFlagsOperationWithFolder:folderFrom uids:uid kind:0 flags:8];
+          [deleteOperation start:^(NSError *error) {
+              if(error) {
+                  reject(@"Error", error.localizedDescription, error);
+              }
+          }];
+          MCOIMAPOperation *expungeOperation = [_imapObject expungeOperation:folderTo];
+          [expungeOperation start:^(NSError * error) {
+              if(error) {
+                  reject(@"Error", error.localizedDescription, error);
+              } else {
+                  NSDictionary *result = @{@"status": @"SUCCESS"};
+                  resolve(result);
+              }
+          }];
       }
     }];
 }
@@ -318,7 +335,7 @@ RCT_EXPORT_METHOD(getMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)r
       [fromData setValue:message.header.from.displayName forKey:@"displayName"];
       [result setObject:fromData forKey:@"from"];
 
-      if(message.header.cc != nil) {
+      if(message.header.to != nil) {
         NSMutableDictionary *toData = [[NSMutableDictionary alloc] init];
         for(MCOAddress *toAddress in message.header.to) {
           [toData setValue:[toAddress displayName] forKey:[toAddress mailbox]];
@@ -362,13 +379,13 @@ RCT_EXPORT_METHOD(getMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)r
         [result setObject:attachmentsData forKey:@"attachments"];
       }
 
-      NSMutableArray *headers = [[NSMutableArray alloc] init];
+       NSMutableDictionary *headers = [[NSMutableDictionary alloc] init];
       NSArray *extraHeaderNames = [message.header allExtraHeadersNames];
       if (extraHeaderNames != nil && extraHeaderNames.count > 0){
         for(NSString *headerKey in extraHeaderNames) {
-          NSMutableDictionary *header = [[NSMutableDictionary alloc] init];
-          [header setObject:[message.header extraHeaderValueForName:headerKey] forKey:headerKey];
-          [headers addObject:header];
+																		   
+          [headers setObject:[message.header extraHeaderValueForName:headerKey] forKey:headerKey];
+									 
         }
       }
       [result setObject: headers forKey: @"headers"];
@@ -415,13 +432,13 @@ RCT_EXPORT_METHOD(getMails:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)
       for(MCOIMAPMessage * message in messages) {
         NSMutableDictionary *mail = [[NSMutableDictionary alloc] init];
           
-        NSMutableArray *headers = [[NSMutableArray alloc] init];
+        NSMutableDictionary *headers = [[NSMutableDictionary alloc] init];
         NSArray *extraHeaderNames = [message.header allExtraHeadersNames];
         if (extraHeaderNames != nil && extraHeaderNames.count > 0){
           for(NSString *headerKey in extraHeaderNames) {
-            NSMutableDictionary *header = [[NSMutableDictionary alloc] init];
-            [header setObject:[message.header extraHeaderValueForName:headerKey] forKey:headerKey];
-            [headers addObject:header];
+																			 
+            [headers setObject:[message.header extraHeaderValueForName:headerKey] forKey:headerKey];
+									   
           }
         }
         [mail setObject: headers forKey: @"headers"];
@@ -521,9 +538,3 @@ RCT_EXPORT_METHOD(getAttachment:(NSDictionary *)obj resolver:(RCTPromiseResolveB
     }
     return self;
 }
-
-- (MCOIMAPSession *)getImapObject {
-        return _imapObject;
-    }
-
-@end
