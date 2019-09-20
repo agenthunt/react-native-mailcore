@@ -486,30 +486,39 @@ RCT_EXPORT_METHOD(getAttachment:(NSDictionary *)obj resolver:(RCTPromiseResolveB
                   reject(@"Error", error.localizedDescription, error);
               }
               
+              
               if ([message.attachments count] > 0)
               {
                   for (int k = 0; k < [message.attachments count]; k++) {
                       MCOIMAPPart *part = [message.attachments objectAtIndex:k];
                       if([part.filename isEqualToString:filename]) {
+                        
                           NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
                           NSString *saveDirectory = [paths objectAtIndex:0];
                           NSString *attachmentPath = [saveDirectory stringByAppendingPathComponent:part.filename];
                           BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:attachmentPath];
                           NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
                           [result setValue:attachmentPath forKey:@"url"];
-                          if (fileExists) {
-                            [result setObject:@"FILE EXIST!" forKey:@"status"];
-                          }
-                          else{
-                              [result setObject:@"FILE SAVE WITH SUCCESS!" forKey:@"status"];
-                              [data writeToFile:attachmentPath atomically:YES];
-                          }
-                         resolve(result);
+                          MCOIMAPFetchContentOperation * op = [_imapObject fetchMessageAttachmentOperationWithFolder:folder 
+                                                                           uid:message.uid 
+                                                                           partID:part.partID
+                                                                           encoding:part.encoding];
+                                                                           
+                          [op start:^(NSError * error, NSData * messageData) {
+                              if (error) {
+                                  [result setObject:@"ERROR" forKey:@"status"];
+                                  resolve(result);
+                              }else{
+                                  [result setObject:@"FILE SAVE WITH SUCCESS!" forKey:@"status"];
+                                  [messageData writeToFile:attachmentPath atomically:YES];
+                                  resolve(result);
+                              }
+                          }];
                       } 
                        
                   }
               } else {
-                 NSDictionary *result = @{@"status": @"SUCCESS"};
+                 NSDictionary *result = @{@"status": @"Could not be found!"};
                 resolve(result);
               }
           }];
