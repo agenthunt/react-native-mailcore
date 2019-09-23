@@ -13,7 +13,14 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: Build with Gradle
+   - name: set up Node 
+      uses: actions/setup-node@v1
+      with:
+      node-version: 10.16.3
+    - name: Build BasicExample 
       run: |
-         cd examples/BasicExample/android
+         npm i -g yarn
+         cd examples/BasicExample
+         yarn
+         cd android
          ./gradlew assembleDebug
