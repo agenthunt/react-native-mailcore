@@ -335,7 +335,7 @@ RCT_EXPORT_METHOD(getMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)r
       [fromData setValue:message.header.from.displayName forKey:@"displayName"];
       [result setObject:fromData forKey:@"from"];
 
-      if(message.header.to != nil) {
+      if(message.header.cc != nil) {
         NSMutableDictionary *toData = [[NSMutableDictionary alloc] init];
         for(MCOAddress *toAddress in message.header.to) {
           [toData setValue:[toAddress displayName] forKey:[toAddress mailbox]];
@@ -379,13 +379,13 @@ RCT_EXPORT_METHOD(getMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)r
         [result setObject:attachmentsData forKey:@"attachments"];
       }
 
-       NSMutableDictionary *headers = [[NSMutableDictionary alloc] init];
+      NSMutableArray *headers = [[NSMutableArray alloc] init];
       NSArray *extraHeaderNames = [message.header allExtraHeadersNames];
       if (extraHeaderNames != nil && extraHeaderNames.count > 0){
         for(NSString *headerKey in extraHeaderNames) {
-																		   
-          [headers setObject:[message.header extraHeaderValueForName:headerKey] forKey:headerKey];
-									 
+          NSMutableDictionary *header = [[NSMutableDictionary alloc] init];
+          [header setObject:[message.header extraHeaderValueForName:headerKey] forKey:headerKey];
+          [headers addObject:header];
         }
       }
       [result setObject: headers forKey: @"headers"];
@@ -395,9 +395,22 @@ RCT_EXPORT_METHOD(getMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)r
         if(error) {
           reject(@"Error", error.localizedDescription, error);
         } else {
+            NSString *inlineData = [NSString stringWithFormat:@"data:image/jpg;base64,%@",
+                                    [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength]];
             MCOMessageParser *messageParser = [[MCOMessageParser alloc] initWithData:data];
             NSString *msgHTMLBody = [messageParser htmlBodyRendering];
+            NSArray *inlineAttachments = [messageParser htmlInlineAttachments];
+            NSMutableArray *inlines = [[NSMutableArray alloc] init];
+            for(MCOAttachment *inlineAttachment in inlineAttachments) {
+                NSMutableDictionary *inlinesObject = [[NSMutableDictionary alloc] init];
+                [inlinesObject setObject:[NSString stringWithFormat:@"data:%@;base64,%@",inlineAttachment.mimeType,[inlineAttachment.data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength]] forKey:@"data"];
+                [inlinesObject setObject:[NSString stringWithFormat:@"%@",inlineAttachment.contentID] forKey:@"cid"];
+                [inlines addObject:inlinesObject];
+            }
+    
+            
             [result setValue:msgHTMLBody forKey:@"body"];
+            [result setObject:inlines forKey:@"inline"];
             [result setValue:@"SUCCESS123" forKey:@"status"];
             resolve(result);
         }
