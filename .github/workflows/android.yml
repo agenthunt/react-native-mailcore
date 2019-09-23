@@ -5,7 +5,7 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-xenial
 
     steps:
     - uses: actions/checkout@v1
@@ -19,7 +19,6 @@ jobs:
         node-version: 10
     - name: Build BasicExample 
       run: |
-         apt-get install lib32z1 -y
          npm i -g yarn
          cd examples/BasicExample
          yarn
