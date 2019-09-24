@@ -307,7 +307,6 @@ import MailCore from 'react-native-mailcore';
   ```
    
   * Get Attachment
-
   ```javascript 
     MailCore.getAttachment({
       filename: 'filename',
@@ -324,9 +323,9 @@ import MailCore from 'react-native-mailcore';
         alert(error);
     });
   ```
-    * Get Attachment Inline (Android) 
-    * In IOS the inline attachment comes in the getmail mail method
-
+  
+  * Get Attachment Inline (Android) 
+  * In IOS the inline attachment comes in the getmail mail method
   ```javascript 
     MailCore.getAttachmentInline({
       filename: 'filename',
