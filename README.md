@@ -324,7 +324,27 @@ import MailCore from 'react-native-mailcore';
         alert(error);
     });
   ```
-  
+    * Get Attachment Inline (Android) 
+    * In IOS the inline attachment comes in the getmail mail method
+
+  ```javascript 
+    MailCore.getAttachmentInline({
+      filename: 'filename',
+      folder: 'folder',
+      messageId: messageId,
+      partID: 'partID',
+      encoding: encoding,
+      mimepart: 'image/png'
+    })
+    .then(result => {
+      alert(result.status);
+    })
+    .catch(error => {
+        alert(error);
+    });
+  ```
+
+
   * List mails
   ```javascript  
     MailCore.getMails({

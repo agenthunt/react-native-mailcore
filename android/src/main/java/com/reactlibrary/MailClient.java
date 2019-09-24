@@ -580,5 +580,29 @@ public class MailClient {
         });
     }
 
+    public void getAttachmentInline(final ReadableMap obj, final Promise promise) {
+        final String filename = obj.getString("filename");
+        String folderId = obj.getString("folder");
+        long messageId = (long) obj.getInt("messageId");
+        String partID = obj.getString("partID");
+        int encoding = obj.getInt("encoding");
+        final String mimepart = obj.getString("mimepart");
+
+        final IMAPFetchContentOperation imapOperation = imapSession.fetchMessageAttachmentByUIDOperation(folderId, messageId, partID,encoding,true);
+        imapOperation.start(new OperationCallback() {
+            @Override
+            public void succeeded() {
+                WritableMap result = Arguments.createMap();
+                String data = "data:" + mimepart + ";base64, " + Base64.encodeToString(imapOperation.data(), Base64.DEFAULT);
+                result.putString("data", data);
+                promise.resolve(result);
+            }
+            @Override
+            public void failed(MailException e) {
+                promise.reject(String.valueOf(e.errorCode()), e.getMessage());
+            }
+        });
+    }
+
     
 }
