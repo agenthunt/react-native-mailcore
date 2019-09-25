@@ -5,7 +5,7 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ubuntu-14.04
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v1
@@ -19,6 +19,7 @@ jobs:
         node-version: 10
     - name: Build BasicExample 
       run: |
+         sudo apt-get install lib32stdc++6 lib32z1
          npm i -g yarn
          cd examples/BasicExample
          yarn
