@@ -385,7 +385,6 @@ import MailCore from 'react-native-mailcore';
   ```
    
   * Get Attachment
-
   ```javascript 
     MailCore.getAttachment({
       filename: 'filename',
