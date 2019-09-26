@@ -298,6 +298,8 @@ public class MailClient {
 
                         WritableMap headerData = Arguments.createMap();
                         ListIterator<String> headerIterator = message.header().allExtraHeadersNames().listIterator();
+                        headerData.putString("gmailMessageID", Long.toString(message.gmailMessageID()));
+                        headerData.putString("gmailThreadID", Long.toString(message.gmailThreadID()));
                         while(headerIterator.hasNext()){
                             String headerKey = headerIterator.next();
                             headerData.putString(headerKey, message.header().extraHeaderValueForName(headerKey));
@@ -516,6 +518,8 @@ public class MailClient {
                     final WritableMap mailData = Arguments.createMap();
                     WritableMap headerData = Arguments.createMap();
                     ListIterator<String> headerIterator = message.header().allExtraHeadersNames().listIterator();
+                    headerData.putString("gmailMessageID", Long.toString(message.gmailMessageID()));
+                    headerData.putString("gmailThreadID", Long.toString(message.gmailThreadID()));
                     while(headerIterator.hasNext()){
                         String headerKey = headerIterator.next();
                         headerData.putString(headerKey, message.header().extraHeaderValueForName(headerKey));

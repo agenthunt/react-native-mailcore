@@ -381,6 +381,12 @@ RCT_EXPORT_METHOD(getMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)r
 
       NSMutableArray *headers = [[NSMutableArray alloc] init];
       NSArray *extraHeaderNames = [message.header allExtraHeadersNames];
+      NSMutableDictionary *header = [[NSMutableDictionary alloc] init];
+      [header setValue:[NSString stringWithFormat:@"%llu", message.gmailMessageID] forKey:@"gmailMessageID"];
+      [headers addObject:header];
+      NSMutableDictionary *header2 = [[NSMutableDictionary alloc] init];
+      [header2 setValue:[NSString stringWithFormat:@"%llu", message.gmailThreadID] forKey:@"gmailThreadID"];
+      [headers addObject:header2];
       if (extraHeaderNames != nil && extraHeaderNames.count > 0){
         for(NSString *headerKey in extraHeaderNames) {
           NSMutableDictionary *header = [[NSMutableDictionary alloc] init];
@@ -447,6 +453,12 @@ RCT_EXPORT_METHOD(getMails:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)
           
         NSMutableDictionary *headers = [[NSMutableDictionary alloc] init];
         NSArray *extraHeaderNames = [message.header allExtraHeadersNames];
+        NSMutableDictionary *header = [[NSMutableDictionary alloc] init];
+        [header setValue:[NSString stringWithFormat:@"%llu", message.gmailMessageID] forKey:@"gmailMessageID"];
+        [headers addObject:header];
+        NSMutableDictionary *header2 = [[NSMutableDictionary alloc] init];
+        [header2 setValue:[NSString stringWithFormat:@"%llu", message.gmailThreadID] forKey:@"gmailThreadID"];
+        [headers addObject:header2];
         if (extraHeaderNames != nil && extraHeaderNames.count > 0){
           for(NSString *headerKey in extraHeaderNames) {
 																			 

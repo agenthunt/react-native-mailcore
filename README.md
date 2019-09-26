@@ -464,7 +464,7 @@ import MailCore from 'react-native-mailcore';
 * [x] listFolders API support
 * [x] imapLogin API support
 * [x] smtpLogin API support
-* [x] GetEmail API support
+* [x] GetEmail API support 
 * [x] MoveEmail API support 
 * [x] DeleteEmail API support 
 * [x] Download attachment 
