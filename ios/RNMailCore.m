@@ -1,4 +1,3 @@
-
 #import "RNMailCore.h"
 #import <MailCore/MailCore.h>
 #import <React/RCTConvert.h>
@@ -453,12 +452,9 @@ RCT_EXPORT_METHOD(getMails:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)
           
         NSMutableDictionary *headers = [[NSMutableDictionary alloc] init];
         NSArray *extraHeaderNames = [message.header allExtraHeadersNames];
-        NSMutableDictionary *header = [[NSMutableDictionary alloc] init];
-        [header setValue:[NSString stringWithFormat:@"%llu", message.gmailMessageID] forKey:@"gmailMessageID"];
-        [headers addObject:header];
-        NSMutableDictionary *header2 = [[NSMutableDictionary alloc] init];
-        [header2 setValue:[NSString stringWithFormat:@"%llu", message.gmailThreadID] forKey:@"gmailThreadID"];
-        [headers addObject:header2];
+        NSMutableDictionary *headerGmailId = [[NSMutableDictionary alloc] init];
+        [headers setObject:[NSString stringWithFormat:@"%llu", message.gmailMessageID] forKey:@"gmailMessageID"];
+        [headers setObject:[NSString stringWithFormat:@"%llu", message.gmailThreadID] forKey:@"gmailThreadID"];
         if (extraHeaderNames != nil && extraHeaderNames.count > 0){
           for(NSString *headerKey in extraHeaderNames) {
 																			 
@@ -572,3 +568,4 @@ RCT_EXPORT_METHOD(getAttachment:(NSDictionary *)obj resolver:(RCTPromiseResolveB
     }
     return self;
 }
+@end
