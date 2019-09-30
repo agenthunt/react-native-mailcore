@@ -278,11 +278,9 @@ RCT_EXPORT_METHOD(sendMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)
   }
 
   if([obj objectForKey:@"attachments"]) {
-    // TODO
     NSArray *attachmentObj = [RCTConvert NSArray:obj[@"attachments"]];
     for(id attachment in attachmentObj) {
-      NSURL *documentsURL = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
-      documentsURL = [documentsURL URLByAppendingPathComponent:attachment];
+      NSURL *documentsURL = [NSURL URLWithString:attachment];
       NSData *fileData = [NSData dataWithContentsOfURL:documentsURL];
       MCOAttachment *attach = [MCOAttachment attachmentWithData:fileData filename:attachment];
       [messageBuilder addAttachment:attach];
