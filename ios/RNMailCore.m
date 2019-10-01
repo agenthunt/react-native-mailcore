@@ -465,7 +465,7 @@ RCT_EXPORT_METHOD(getMails:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)
         [mail setObject:[NSString stringWithFormat:@"%d",[message uid]] forKey:@"id"];
           int flags = message.flags;
         [mail setObject:[NSString stringWithFormat:@"%d",flags] forKey:@"flags"];
-        [mail setObject:message.header.from.displayName forKey:@"from"];
+        [mail setObject:message.header.from.displayName ? : @"" forKey:@"from"];  
         [mail setObject:message.header.subject forKey:@"subject"];
         [mail setObject:[dateFormat stringFromDate:message.header.date] forKey:@"date"];
         if (message.attachments != nil) {
@@ -566,4 +566,9 @@ RCT_EXPORT_METHOD(getAttachment:(NSDictionary *)obj resolver:(RCTPromiseResolveB
     }
     return self;
 }
+
+- (MCOIMAPSession *)getImapObject {
+        return _imapObject;
+    }
+
 @end
