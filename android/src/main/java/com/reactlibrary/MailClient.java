@@ -450,7 +450,7 @@ public class MailClient {
         WritableMap permantDeleteRequest = Arguments.createMap();
         permantDeleteRequest.putString("folder", from);
         permantDeleteRequest.putInt("messageId", messageId);
-        permantDelete(obj,promise);
+        permantDelete(permantDeleteRequest,promise);
     }
 
     public void permantDelete(final ReadableMap obj, final Promise promise) {
