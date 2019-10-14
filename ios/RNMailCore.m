@@ -121,7 +121,7 @@ RCT_EXPORT_METHOD(getFolders:(RCTPromiseResolveBlock)resolve
           int flags = folder.flags;
           [folderObject setObject:[NSString stringWithFormat:@"%d",flags] forKey:@"flags"];
           [folderObject setObject:folder.path forKey:@"folder"];
-          NSDictionary *mapFolder = @{@"folder": folder.path};
+          NSDictionary *mapFolder = @{@"path": folder.path};
             
           [folders addObject:folderObject];
 			 
