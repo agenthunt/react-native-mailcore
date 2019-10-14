@@ -584,7 +584,7 @@ RCT_EXPORT_METHOD(getMailsThread:(NSDictionary *)obj resolver:(RCTPromiseResolve
                   for(NSString *refs in message.header.references) {
                     [listThreads addObject:refs];
                   }
-                  [mail setObject:[NSNumber numberWithInt:message.header.references.count] forKey:@"threads"];
+                  [mail setObject:[NSNumber numberWithInt:message.header.references.count] forKey:@"thread"];
               }
               
 
