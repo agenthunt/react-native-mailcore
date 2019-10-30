@@ -132,7 +132,7 @@ public class MailClient {
             }
         }
         ReadableMap fromObj = obj.getMap("from");
-        Address fromAddress = new Address();
+        final Address fromAddress = new Address();
         fromAddress.setDisplayName(fromObj.getString("addressWithDisplayName"));
         fromAddress.setMailbox(fromObj.getString("mailbox"));
         messageHeader.setFrom(fromAddress);
@@ -183,7 +183,7 @@ public class MailClient {
         if(obj.hasKey("subject")) {
             messageHeader.setSubject(obj.getString("subject"));
         }
-        MessageBuilder messageBuilder = new MessageBuilder();
+        final MessageBuilder messageBuilder = new MessageBuilder();
         messageBuilder.setHeader(messageHeader);
         if(obj.hasKey("body")) {
             messageBuilder.setHTMLBody(obj.getString("body"));
@@ -192,6 +192,10 @@ public class MailClient {
             ReadableArray attachments = obj.getArray("attachments");
             for (int i = 0; i < attachments.size(); i++) {
                 ReadableMap attachment = attachments.getMap(i);
+
+                if (attachment.getString("uniqueId") != null)
+                    continue;
+
                 String pathName = attachment.getString("uri");
                 String fileName = attachment.getString("filename");
                 File file = new File(pathName);
@@ -229,15 +233,16 @@ public class MailClient {
             }
         }
 
-        ArrayList<Address> allRecipients = new ArrayList<>();
+        final ArrayList<Address> allRecipients = new ArrayList<>();
         allRecipients.addAll(toAddressList);
         allRecipients.addAll(ccAddressList);
         allRecipients.addAll(bccAddressList);
 
-        final SMTPOperation smtpOperation = smtpSession.sendMessageOperation(fromAddress, allRecipients, messageBuilder.data());
-        currentActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        if(!obj.hasKey("original_id")) {
+            final SMTPOperation smtpOperation = smtpSession.sendMessageOperation(fromAddress, allRecipients, messageBuilder.data());
+            currentActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
                 smtpOperation.start(new OperationCallback() {
                     @Override
                     public void succeeded() {
@@ -251,8 +256,78 @@ public class MailClient {
                         promise.reject(String.valueOf(e.errorCode()), e.getMessage());
                     }
                 });
-            }
-        });
+                }
+            });
+        } else {
+            Long original_id =  Long.parseLong(obj.getString("original_id"));
+            String original_folder = obj.getString("original_folder");
+            final IMAPFetchContentOperation fetchOriginalMessageOperation = imapSession.fetchMessageByUIDOperation(original_folder, original_id);
+            currentActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    fetchOriginalMessageOperation.start(new OperationCallback() {
+                        @Override
+                        public void succeeded() {
+                            MessageParser messageParser = MessageParser.messageParserWithData(fetchOriginalMessageOperation.data());
+
+                            // https://github.com/MailCore/mailcore2/blob/master/src/core/abstract/MCMessageHeader.cpp#L1197
+                            if (messageParser.header().messageID() != null) {
+                                messageBuilder.header().setInReplyTo(new ArrayList<>(Arrays.asList(messageParser.header().messageID())));
+                            }
+
+                            ArrayList<String> newReferences = new ArrayList<>(messageParser.header().references());
+                            if (messageParser.header().messageID() != null) {
+                                newReferences.add(messageParser.header().messageID());
+                            }
+                            messageBuilder.header().setReferences(newReferences);
+
+                            // set original attachments if they were any left
+                            if(obj.hasKey("attachments")) {
+                                ReadableArray attachments = obj.getArray("attachments");
+
+                                for (int i = 0; i < attachments.size(); i++) {
+                                    ReadableMap attachment = attachments.getMap(i);
+
+                                    if (attachment.getString("uniqueId") == null)
+                                        continue;
+
+                                    for (AbstractPart abstractPart : messageParser.attachments()) {
+                                        if (abstractPart instanceof Attachment) {
+                                            Attachment original_attachment = (Attachment)abstractPart;
+
+                                            if (original_attachment.uniqueID() != attachment.getString("uniqueId"))
+                                                continue;
+
+                                            messageBuilder.addAttachment(original_attachment);
+                                        }
+                                    }
+                                }
+                            }
+
+                            final SMTPOperation smtpOperation = smtpSession.sendMessageOperation(fromAddress, allRecipients, messageBuilder.data());
+                            smtpOperation.start(new OperationCallback() {
+                                @Override
+                                public void succeeded() {
+                                    WritableMap result = Arguments.createMap();
+                                    result.putString("status", "SUCCESS");
+                                    promise.resolve(result);
+                                }
+
+                                @Override
+                                public void failed(MailException e) {
+                                    promise.reject(String.valueOf(e.errorCode()), e.getMessage());
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void failed(MailException e) {
+                            promise.reject(String.valueOf(e.errorCode()), e.getMessage());
+                        }
+                    });
+                }
+            });
+        }
     }
 
     public void getMail(final ReadableMap obj,final Promise promise) {
@@ -327,9 +402,13 @@ public class MailClient {
                                 IMAPPart part = (IMAPPart) attachment;
                                 WritableMap attachmentData = Arguments.createMap();
                                 attachmentData.putString("filename", attachment.filename());
+
                                 Long size = part.size();
                                 attachmentData.putString("size", size.toString());
+
                                 attachmentData.putInt("encoding", part.encoding());
+                                attachmentData.putString("uniqueId", part.uniqueID());
+
                                 attachmentsData.putMap(part.partID(), attachmentData);
                             }
                         }
@@ -778,5 +857,5 @@ public class MailClient {
             }
         });
     }
-    
+
 }
