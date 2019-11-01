@@ -237,8 +237,8 @@ public class MailClient {
         allRecipients.addAll(toAddressList);
         allRecipients.addAll(ccAddressList);
         allRecipients.addAll(bccAddressList);
-
-        if(!obj.hasKey("original_id")) {
+        
+        if(obj.isNull("original_id")) {
             final SMTPOperation smtpOperation = smtpSession.sendMessageOperation(fromAddress, allRecipients, messageBuilder.data());
             currentActivity.runOnUiThread(new Runnable() {
                 @Override
@@ -259,7 +259,7 @@ public class MailClient {
                 }
             });
         } else {
-            Long original_id =  Long.parseLong(obj.getString("original_id"));
+            Long original_id = ((Double)obj.getDouble("original_id")).longValue();
             String original_folder = obj.getString("original_folder");
             final IMAPFetchContentOperation fetchOriginalMessageOperation = imapSession.fetchMessageByUIDOperation(original_folder, original_id);
             currentActivity.runOnUiThread(new Runnable() {
@@ -295,7 +295,7 @@ public class MailClient {
                                         if (abstractPart instanceof Attachment) {
                                             Attachment original_attachment = (Attachment)abstractPart;
 
-                                            if (original_attachment.uniqueID() != attachment.getString("uniqueId"))
+                                            if (!original_attachment.uniqueID().equals(attachment.getString("uniqueId")))
                                                 continue;
 
                                             messageBuilder.addAttachment(original_attachment);
