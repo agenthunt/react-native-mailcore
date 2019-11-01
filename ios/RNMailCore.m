@@ -302,7 +302,7 @@ RCT_EXPORT_METHOD(sendMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)
         }
     }
     
-    if([obj objectForKey:@"original_id"] == nil) {
+    if([obj objectForKey:@"original_id"] == [NSNull null]) {
         [self sendEmail:messageBuilder reject:reject resolve:resolve];
     } else {
         // this should only occur during a mail forward
