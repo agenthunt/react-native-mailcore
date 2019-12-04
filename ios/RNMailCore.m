@@ -21,10 +21,17 @@ RCT_EXPORT_METHOD(loginSmtp:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock
     MCOSMTPSession *smtpSession = [[MCOSMTPSession alloc] init];
     smtpSession.hostname = [RCTConvert NSString:obj[@"hostname"]];
     smtpSession.port = [RCTConvert int:obj[@"port"]];
-    smtpSession.username = [RCTConvert NSString:obj[@"username"]];
-    smtpSession.password = [RCTConvert NSString:obj[@"password"]];
-    smtpSession.authType = MCOAuthTypeSASLPlain;
     smtpSession.connectionType = MCOConnectionTypeTLS;
+    
+    int authType = [RCTConvert int:obj[@"authType"]];
+    [smtpSession setAuthType:authType];
+    if (authType == MCOAuthTypeXOAuth2) {
+        [smtpSession setOAuth2Token:[RCTConvert NSString:obj[@"password"]]];
+    } else {
+        smtpSession.password = [RCTConvert NSString:obj[@"password"]];
+    }
+    [smtpSession setUsername:[RCTConvert NSString:obj[@"username"]]];
+    
     _smtpObject = smtpSession;
     MCOSMTPOperation *smtpOperation = [_smtpObject loginOperation];
     [smtpOperation start:^(NSError *error) {
@@ -45,10 +52,17 @@ RCT_EXPORT_METHOD(loginImap:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock
     MCOIMAPSession *imapSession = [[MCOIMAPSession alloc] init];
     imapSession.hostname = [RCTConvert NSString:obj[@"hostname"]];
     imapSession.port = [RCTConvert int:obj[@"port"]];
-    imapSession.username = [RCTConvert NSString:obj[@"username"]];
-    imapSession.password = [RCTConvert NSString:obj[@"password"]];
-    imapSession.authType = MCOAuthTypeSASLPlain;
     imapSession.connectionType = MCOConnectionTypeTLS;
+    
+    int authType = [RCTConvert int:obj[@"authType"]];
+    [imapSession setAuthType:authType];
+    if (authType == MCOAuthTypeXOAuth2) {
+        [imapSession setOAuth2Token:[RCTConvert NSString:obj[@"password"]]];
+    } else {
+        imapSession.password = [RCTConvert NSString:obj[@"password"]];
+    }
+    [imapSession setUsername:[RCTConvert NSString:obj[@"username"]]];
+    
     _imapObject = imapSession;
     MCOIMAPOperation *imapOperation = [_imapObject checkAccountOperation];
     [imapOperation start:^(NSError *error) {
