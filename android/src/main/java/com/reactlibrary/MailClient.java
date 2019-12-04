@@ -75,13 +75,20 @@ public class MailClient {
     public IMAPSession imapSession;
 
     public void initIMAPSession(UserCredential userCredential,final Promise promise){
-        this.imapSession = new IMAPSession();
+        imapSession = new IMAPSession();
         imapSession.setHostname(userCredential.getHostname());
         imapSession.setPort(userCredential.getPort());
-        imapSession.setUsername(userCredential.getUsername());
-        imapSession.setPassword(userCredential.getPassword());
-        imapSession.setAuthType(AuthType.AuthTypeSASLPlain);
         imapSession.setConnectionType(ConnectionType.ConnectionTypeTLS);
+
+        int authType = userCredential.getAuthType();
+        imapSession.setAuthType(authType);
+        if (authType == AuthType.AuthTypeXOAuth2) {
+            imapSession.setOAuth2Token(userCredential.getPassword());
+        } else {
+            imapSession.setPassword(userCredential.getPassword());
+        }
+        imapSession.setUsername(userCredential.getUsername());
+        
         IMAPOperation imapOperation = this.imapSession.checkAccountOperation();
         imapOperation.start(new OperationCallback() {
             @Override
@@ -98,13 +105,20 @@ public class MailClient {
     }
 
     public void initSMTPSession(UserCredential userCredential,final Promise promise){
-        this.smtpSession = new SMTPSession();
+        smtpSession = new SMTPSession();
         smtpSession.setHostname(userCredential.getHostname());
         smtpSession.setPort(userCredential.getPort());
-        smtpSession.setUsername(userCredential.getUsername());
-        smtpSession.setPassword(userCredential.getPassword());
-        smtpSession.setAuthType(AuthType.AuthTypeSASLPlain);
         smtpSession.setConnectionType(ConnectionType.ConnectionTypeTLS);
+
+        int authType = userCredential.getAuthType();
+        smtpSession.setAuthType(authType);
+        if (authType == AuthType.AuthTypeXOAuth2) {
+            smtpSession.setOAuth2Token(userCredential.getPassword());
+        } else {
+            smtpSession.setPassword(userCredential.getPassword());
+        }
+        smtpSession.setUsername(userCredential.getUsername());
+
         SMTPOperation smtpOperation = this.smtpSession.loginOperation();
         smtpOperation.start(new OperationCallback() {
             @Override

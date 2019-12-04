@@ -6,6 +6,7 @@ public class UserCredential {
     private String password;
     private String hostname;
     private Integer port;
+    private int authType;
 
 
     public UserCredential(ReadableMap obj){
@@ -13,6 +14,7 @@ public class UserCredential {
         this.port = obj.getInt("port");
         this.username = obj.getString("username");
         this.password = obj.getString("password");
+        this.authType = obj.getInt("authType");
     }
 
     public String getHostname(){
@@ -30,4 +32,6 @@ public class UserCredential {
     public String getPassword(){
         return password;
     }
+
+    public int getAuthType() { return authType; }
 }
