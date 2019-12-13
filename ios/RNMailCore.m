@@ -14,7 +14,6 @@ RCT_EXPORT_MODULE()
 
 
 
-
 RCT_EXPORT_METHOD(loginSmtp:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
