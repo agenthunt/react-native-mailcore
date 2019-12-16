@@ -7,7 +7,7 @@
 
 @interface RNMailCore : NSObject <RCTBridgeModule>
     @property (strong, nonatomic) MCOSMTPSession *smtpObject;
-    @property (strong, nonatomic) MCOIMAPSession *imapObject;
+    @property (strong, nonatomic) MCOIMAPSession *imapSession;
 
     - (instancetype)init:(MCOSMTPSession *)smtpObject;
     - (instancetype)init:(MCOSMTPSession *)imapObject;            

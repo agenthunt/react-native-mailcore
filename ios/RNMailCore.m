@@ -62,8 +62,8 @@ RCT_EXPORT_METHOD(loginImap:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock
     }
     [imapSession setUsername:[RCTConvert NSString:obj[@"username"]]];
     
-    _imapObject = imapSession;
-    MCOIMAPOperation *imapOperation = [_imapObject checkAccountOperation];
+    _imapSession = imapSession;
+    MCOIMAPOperation *imapOperation = [_imapSession checkAccountOperation];
     [imapOperation start:^(NSError *error) {
         if(error) {
             NSLog(@"Error sending email: %@", error);
@@ -79,7 +79,7 @@ RCT_EXPORT_METHOD(loginImap:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock
 RCT_EXPORT_METHOD(createFolder:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
-    MCOIMAPOperation *imapOperation = [_imapObject createFolderOperation: [RCTConvert NSString:obj[@"folder"]]];
+    MCOIMAPOperation *imapOperation = [_imapSession createFolderOperation: [RCTConvert NSString:obj[@"folder"]]];
     [imapOperation start:^(NSError *error) {
         if(error) {
             reject(@"Error", error.localizedDescription, error);
@@ -93,7 +93,7 @@ RCT_EXPORT_METHOD(createFolder:(NSDictionary *)obj resolver:(RCTPromiseResolveBl
 RCT_EXPORT_METHOD(renameFolder:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
-    MCOIMAPOperation *imapOperation = [_imapObject renameFolderOperation:[RCTConvert NSString:obj[@"folderOldName"]] otherName:[RCTConvert NSString:obj[@"folderNewName"]]];
+    MCOIMAPOperation *imapOperation = [_imapSession renameFolderOperation:[RCTConvert NSString:obj[@"folderOldName"]] otherName:[RCTConvert NSString:obj[@"folderNewName"]]];
     [imapOperation start:^(NSError *error) {
         if(error) {
             reject(@"Error", error.localizedDescription, error);
@@ -107,7 +107,7 @@ RCT_EXPORT_METHOD(renameFolder:(NSDictionary *)obj resolver:(RCTPromiseResolveBl
 RCT_EXPORT_METHOD(deleteFolder:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
-    MCOIMAPOperation *imapOperation = [_imapObject deleteFolderOperation: [RCTConvert NSString:obj[@"folder"]]];
+    MCOIMAPOperation *imapOperation = [_imapSession deleteFolderOperation: [RCTConvert NSString:obj[@"folder"]]];
     [imapOperation start:^(NSError *error) {
         if(error) {
             reject(@"Error", error.localizedDescription, error);
@@ -121,7 +121,7 @@ RCT_EXPORT_METHOD(deleteFolder:(NSDictionary *)obj resolver:(RCTPromiseResolveBl
 RCT_EXPORT_METHOD(getFolders:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
-    MCOIMAPFetchFoldersOperation *imapOperation = [_imapObject fetchAllFoldersOperation];
+    MCOIMAPFetchFoldersOperation *imapOperation = [_imapSession fetchAllFoldersOperation];
     [imapOperation start:^(NSError *error, NSArray * fetchedFolders) {
         if(error) {
             reject(@"Error", error.localizedDescription, error);
@@ -155,7 +155,7 @@ RCT_EXPORT_METHOD(actionFlagMessage:(NSDictionary *)obj resolver:(RCTPromiseReso
     MCOIndexSet *uid = [MCOIndexSet indexSetWithIndex:valueUInt64];
     NSNumber *flagsRequestKind = [RCTConvert NSNumber:obj[@"flagsRequestKind"]];
     NSNumber *messageFlag = [RCTConvert NSNumber:obj[@"messageFlag"]];
-    MCOIMAPOperation *imapOperation = [_imapObject storeFlagsOperationWithFolder:folder uids:uid kind:flagsRequestKind.unsignedLongLongValue flags:messageFlag.unsignedLongLongValue];
+    MCOIMAPOperation *imapOperation = [_imapSession storeFlagsOperationWithFolder:folder uids:uid kind:flagsRequestKind.unsignedLongLongValue flags:messageFlag.unsignedLongLongValue];
     [imapOperation start:^(NSError *error) {
         if(error) {
             reject(@"Error", error.localizedDescription, error);
@@ -176,7 +176,7 @@ RCT_EXPORT_METHOD(actionLabelMessage:(NSDictionary *)obj resolver:(RCTPromiseRes
     MCOIndexSet *uid = [MCOIndexSet indexSetWithIndex:valueUInt64];
     NSNumber *flagsRequestKind = [RCTConvert NSNumber:obj[@"flagsRequestKind"]];
     NSArray *tags = [RCTConvert NSArray:obj[@"tags"]];
-    MCOIMAPOperation *imapOperation = [_imapObject storeLabelsOperationWithFolder:folder uids:uid kind:flagsRequestKind.unsignedLongLongValue labels:tags];
+    MCOIMAPOperation *imapOperation = [_imapSession storeLabelsOperationWithFolder:folder uids:uid kind:flagsRequestKind.unsignedLongLongValue labels:tags];
     [imapOperation start:^(NSError *error) {
         if(error) {
             reject(@"Error", error.localizedDescription, error);
@@ -195,18 +195,18 @@ RCT_EXPORT_METHOD(moveEmail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock
     unsigned long long valueUInt64 = messageId.unsignedLongLongValue;
     MCOIndexSet *uid = [MCOIndexSet indexSetWithIndex:valueUInt64];
     NSString *folderTo = [RCTConvert NSString:obj[@"folderTo"]];
-    MCOIMAPCopyMessagesOperation *imapOperation = [_imapObject copyMessagesOperationWithFolder:folderFrom uids:uid destFolder:folderTo];
+    MCOIMAPCopyMessagesOperation *imapOperation = [_imapSession copyMessagesOperationWithFolder:folderFrom uids:uid destFolder:folderTo];
     [imapOperation start:^(NSError *error, NSDictionary * uidMapping) {
         if(error) {
             reject(@"Error", error.localizedDescription, error);
         } else {
-            MCOIMAPOperation *deleteOperation = [_imapObject storeFlagsOperationWithFolder:folderFrom uids:uid kind:0 flags:8];
+            MCOIMAPOperation *deleteOperation = [_imapSession storeFlagsOperationWithFolder:folderFrom uids:uid kind:0 flags:8];
             [deleteOperation start:^(NSError *error) {
                 if(error) {
                     reject(@"Error", error.localizedDescription, error);
                 }
             }];
-            MCOIMAPOperation *expungeOperation = [_imapObject expungeOperation:folderTo];
+            MCOIMAPOperation *expungeOperation = [_imapSession expungeOperation:folderTo];
             [expungeOperation start:^(NSError * error) {
                 if(error) {
                     reject(@"Error", error.localizedDescription, error);
@@ -226,14 +226,14 @@ RCT_EXPORT_METHOD(permantDeleteEmail:(NSDictionary *)obj resolver:(RCTPromiseRes
     NSNumber *messageId = [RCTConvert NSNumber:obj[@"messageId"]];
     unsigned long long valueUInt64 = messageId.unsignedLongLongValue;
     MCOIndexSet *uid = [MCOIndexSet indexSetWithIndex:valueUInt64];
-    MCOIMAPOperation *imapOperation = [_imapObject storeFlagsOperationWithFolder:folder uids:uid kind:0 flags:8];
+    MCOIMAPOperation *imapOperation = [_imapSession storeFlagsOperationWithFolder:folder uids:uid kind:0 flags:8];
     [imapOperation start:^(NSError *error) {
         if(error) {
             reject(@"Error", error.localizedDescription, error);
         } else {
         }
     }];
-    imapOperation = [_imapObject expungeOperation:folder];
+    imapOperation = [_imapSession expungeOperation:folder];
     [imapOperation start:^(NSError * error) {
         if(error) {
             reject(@"Error", error.localizedDescription, error);
@@ -323,7 +323,7 @@ RCT_EXPORT_METHOD(sendMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)
         NSNumber *original_id = [RCTConvert NSNumber:obj[@"original_id"]];
         NSString *original_folder = [RCTConvert NSString:obj[@"original_folder"]];
         
-        MCOIMAPFetchContentOperation * fetchOriginalMessageOperation = [_imapObject fetchMessageOperationWithFolder:original_folder uid:original_id.unsignedLongLongValue];
+        MCOIMAPFetchContentOperation * fetchOriginalMessageOperation = [_imapSession fetchMessageOperationWithFolder:original_folder uid:original_id.unsignedLongLongValue];
         [fetchOriginalMessageOperation start:^(NSError * error, NSData * messageData) {
             if (!messageData) {
                 reject(@"Error", error.localizedDescription, error);
@@ -372,7 +372,7 @@ RCT_EXPORT_METHOD(getMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)r
     MCOIndexSet *uid = [MCOIndexSet indexSetWithIndex:valueUInt64];
     int requestKind = [RCTConvert int:obj[@"requestKind"]];
     
-    MCOIMAPFetchMessagesOperation *fetchOperation = [_imapObject fetchMessagesOperationWithFolder:folder requestKind:requestKind uids:uid];
+    MCOIMAPFetchMessagesOperation *fetchOperation = [_imapSession fetchMessagesOperationWithFolder:folder requestKind:requestKind uids:uid];
     
     NSArray *extraHeadersRequest = [RCTConvert NSArray:obj[@"headers"]];
     if (extraHeadersRequest != nil && extraHeadersRequest.count > 0) {
@@ -460,7 +460,7 @@ RCT_EXPORT_METHOD(getMail:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)r
              }
              [result setObject: headers forKey: @"headers"];
              
-             MCOIMAPFetchContentOperation *operation = [_imapObject fetchMessageOperationWithFolder:folder uid:message.uid];
+             MCOIMAPFetchContentOperation *operation = [_imapSession fetchMessageOperationWithFolder:folder uid:message.uid];
              [operation start:^(NSError *error, NSData *data) {
                  if(error) {
                      reject(@"Error", error.localizedDescription, error);
@@ -496,7 +496,7 @@ RCT_EXPORT_METHOD(getMails:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)
     NSString *lastUId = [RCTConvert NSString:obj[@"threadId"] ? : nil];
     if(lastUId == nil) {
         MCOIndexSet *uids = [MCOIndexSet indexSetWithRange:MCORangeMake(1, UINT64_MAX)];
-        MCOIMAPFetchMessagesOperation * fetchMessagesOperationWithFolderOperation = [_imapObject fetchMessagesOperationWithFolder:folder
+        MCOIMAPFetchMessagesOperation * fetchMessagesOperationWithFolderOperation = [_imapSession fetchMessagesOperationWithFolder:folder
                                                                                                                       requestKind:requestKind uids:uids];
         
         NSArray *extraHeadersRequest = [RCTConvert NSArray:obj[@"headers"]];
@@ -518,7 +518,7 @@ RCT_EXPORT_METHOD(getMails:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)
                     
                     NSMutableDictionary *headers = [[NSMutableDictionary alloc] init];
                     NSArray *extraHeaderNames = [message.header allExtraHeadersNames];
-                    NSMutableDictionary *headerGmailId = [[NSMutableDictionary alloc] init];
+                    
                     [headers setObject:[NSString stringWithFormat:@"%llu", message.gmailMessageID] forKey:@"gmailMessageID"];
                     [headers setObject:[NSString stringWithFormat:@"%llu", message.gmailThreadID] forKey:@"gmailThreadID"];
                     if (extraHeaderNames != nil && extraHeaderNames.count > 0){
@@ -552,14 +552,14 @@ RCT_EXPORT_METHOD(getMails:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)
     else
     {
         long *testLong = [lastUId longLongValue];
-        MCOIMAPSearchOperation *op = [_imapObject searchExpressionOperationWithFolder:folder expression:[MCOIMAPSearchExpression searchGmailThreadID:testLong]];
+        MCOIMAPSearchOperation *op = [_imapSession searchExpressionOperationWithFolder:folder expression:[MCOIMAPSearchExpression searchGmailThreadID:testLong]];
         [op start:^(NSError * _Nullable error, MCOIndexSet * _Nullable searchResult) {
             if(error) {
                 reject(@"Error", error.localizedDescription, error);
             }
             
             MCOIMAPSearchOperation *uids = searchResult;
-            MCOIMAPFetchMessagesOperation * fetchMessagesOperationWithFolderOperation = [_imapObject fetchMessagesOperationWithFolder:folder
+            MCOIMAPFetchMessagesOperation * fetchMessagesOperationWithFolderOperation = [_imapSession fetchMessagesOperationWithFolder:folder
                                                                                                                           requestKind:requestKind uids:uids];
             [fetchMessagesOperationWithFolderOperation start:^(NSError * error, NSArray * messages, MCOIndexSet * vanishedMessages) {
                 if(error) {
@@ -622,7 +622,7 @@ RCT_EXPORT_METHOD(getMailsThread:(NSDictionary *)obj resolver:(RCTPromiseResolve
     int requestKind = [RCTConvert int:obj[@"requestKind"]];
     //int lastUId = [RCTConvert int:obj[@"lastUId"] ? : 1];
     MCOIndexSet *uids = [MCOIndexSet indexSetWithRange:MCORangeMake(1, UINT64_MAX)];
-    MCOIMAPFetchMessagesOperation * fetchMessagesOperationWithFolderOperation = [_imapObject fetchMessagesOperationWithFolder:folder
+    MCOIMAPFetchMessagesOperation * fetchMessagesOperationWithFolderOperation = [_imapSession fetchMessagesOperationWithFolder:folder
                                                                                                                   requestKind:requestKind uids:uids];
     
     NSArray *extraHeadersRequest = [RCTConvert NSArray:obj[@"headers"]];
@@ -656,7 +656,7 @@ RCT_EXPORT_METHOD(getMailsThread:(NSDictionary *)obj resolver:(RCTPromiseResolve
                     
                     
                     NSArray *extraHeaderNames = [message.header allExtraHeadersNames];
-                    NSMutableDictionary *headerGmailId = [[NSMutableDictionary alloc] init];
+                    
                     [headers setObject:[NSString stringWithFormat:@"%llu", message.gmailMessageID] forKey:@"gmailMessageID"];
                     [headers setObject:[NSString stringWithFormat:@"%llu", message.gmailThreadID] forKey:@"gmailThreadID"];
                     if (extraHeaderNames != nil && extraHeaderNames.count > 0){
@@ -700,13 +700,13 @@ RCT_EXPORT_METHOD(getAttachment:(NSDictionary *)obj resolver:(RCTPromiseResolveB
     unsigned long long valueUInt64 = messageId.unsignedLongLongValue;
     MCOIndexSet *uid = [MCOIndexSet indexSetWithIndex:valueUInt64];
     MCOIMAPMessagesRequestKind requestKind = MCOIMAPMessagesRequestKindHeaders | MCOIMAPMessagesRequestKindStructure | MCOIMAPMessagesRequestKindInternalDate | MCOIMAPMessagesRequestKindHeaderSubject | MCOIMAPMessagesRequestKindFlags;
-    MCOIMAPFetchMessagesOperation *fetchOperation = [_imapObject fetchMessagesOperationWithFolder:folder requestKind:requestKind uids:uid];
+    MCOIMAPFetchMessagesOperation *fetchOperation = [_imapSession fetchMessagesOperationWithFolder:folder requestKind:requestKind uids:uid];
     [fetchOperation start:^(NSError * error, NSArray * fetchedMessages, MCOIndexSet * vanishedMessages) {
         if(error) {
             reject(@"Error", error.localizedDescription, error);
         } else {
             MCOIMAPMessage *message = [fetchedMessages objectAtIndex:0];
-            MCOIMAPFetchContentOperation *op = [_imapObject fetchMessageOperationWithFolder:folder uid:message.uid];
+            MCOIMAPFetchContentOperation *op = [_imapSession fetchMessageOperationWithFolder:folder uid:message.uid];
             [op start:^(NSError * error, NSData * data) {
                 if(error || !data) {
                     reject(@"Error", error.localizedDescription, error);
@@ -722,10 +722,9 @@ RCT_EXPORT_METHOD(getAttachment:(NSDictionary *)obj resolver:(RCTPromiseResolveB
                             NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
                             NSString *saveDirectory = [paths objectAtIndex:0];
                             NSString *attachmentPath = [saveDirectory stringByAppendingPathComponent:part.filename];
-                            BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:attachmentPath];
                             NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
                             [result setValue:attachmentPath forKey:@"url"];
-                            MCOIMAPFetchContentOperation * op = [_imapObject fetchMessageAttachmentOperationWithFolder:folder
+                            MCOIMAPFetchContentOperation * op = [_imapSession fetchMessageAttachmentOperationWithFolder:folder
                                                                                                                    uid:message.uid
                                                                                                                 partID:part.partID
                                                                                                               encoding:part.encoding];
@@ -752,6 +751,138 @@ RCT_EXPORT_METHOD(getAttachment:(NSDictionary *)obj resolver:(RCTPromiseResolveB
     }];
 }
 
+RCT_EXPORT_METHOD(statusFolder:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSString *folder = [RCTConvert NSString:obj[@"folder"]];
+    [[_imapSession folderStatusOperation:folder] start:^(NSError * _Nullable error, MCOIMAPFolderStatus * _Nullable status) {
+        if(error) {
+            reject(@"Error", error.localizedDescription, error);
+        } else {
+            NSDictionary *result = @{
+                                     @"status": @"SUCCESS",
+                                     @"unseenCount": [NSNumber numberWithInt:status.unseenCount],
+                                     @"messageCount": [NSNumber numberWithInt:status.messageCount],
+                                     @"recentCount": [NSNumber numberWithInt:status.recentCount]
+                                     };
+            resolve(result);
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(getMailsByRange:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    // HOW TO USE:
+    // https://github.com/MailCore/mailcore2/blob/aaddeaf20e520d66d8a9821fde9fb09ed77d4526/example/ios/iOS%20UI%20Test/iOS%20UI%20Test/MasterViewController.m#L190
+    
+    // Get arguments
+    NSString *folder = [RCTConvert NSString:obj[@"folder"]];
+    int requestKind = [RCTConvert int:obj[@"requestKind"]];
+    int from = [RCTConvert int:obj[@"from"]];
+    int length = [RCTConvert int:obj[@"length"]];;
+    
+    // Build operation
+    MCOIndexSet *fetchRange = [MCOIndexSet indexSetWithRange:MCORangeMake(from, length)];
+    MCOIMAPFetchMessagesOperation *operation = [_imapSession
+                                                fetchMessagesByNumberOperationWithFolder:folder
+                                                requestKind:requestKind
+                                                numbers:fetchRange];
+    
+    NSArray *extraHeadersRequest = [RCTConvert NSArray:obj[@"headers"]];
+    if (extraHeadersRequest != nil && extraHeadersRequest.count > 0) {
+        [operation setExtraHeaders:extraHeadersRequest];
+    }
+    
+    // Start operation
+    [operation start:^(NSError *error, NSArray *messages, MCOIndexSet *vanishedMessages) {
+        [self parseMessages:error messages:messages reject:reject resolve:resolve];
+    }];
+}
+
+RCT_EXPORT_METHOD(getMailsByThread:(NSDictionary *)obj resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSString *folder = [RCTConvert NSString:obj[@"folder"]];
+    int requestKind = [RCTConvert int:obj[@"requestKind"]];
+    NSString *threadUID = [RCTConvert NSString:obj[@"threadId"]];
+    
+    MCOIMAPSearchOperation *searchOperation = [_imapSession
+                                               searchExpressionOperationWithFolder:folder
+                                               expression:[MCOIMAPSearchExpression searchGmailThreadID:[threadUID longLongValue]]];
+    
+    [searchOperation start:^(NSError * _Nullable error, MCOIndexSet * _Nullable searchResult) {
+        if(error) {
+            reject(@"Error", error.localizedDescription, error);
+            return;
+        }
+        
+        MCOIMAPFetchMessagesOperation * fetchMessagesFromFolderOperation = [_imapSession
+                                                                            fetchMessagesOperationWithFolder:folder
+                                                                            requestKind:requestKind uids:searchResult];
+        
+        NSArray *extraHeadersRequest = [RCTConvert NSArray:obj[@"headers"]];
+        if (extraHeadersRequest != nil && extraHeadersRequest.count > 0) {
+            [fetchMessagesFromFolderOperation setExtraHeaders:extraHeadersRequest];
+        }
+        
+        [fetchMessagesFromFolderOperation start:^(NSError * error, NSArray * messages, MCOIndexSet * vanishedMessages) {
+            [self parseMessages:error messages:messages reject:reject resolve:resolve];
+        }];
+        
+    }];
+}
+
+- (void)parseMessages:(NSError *)error messages:(NSArray *)messages reject:(RCTPromiseRejectBlock)reject resolve:(RCTPromiseResolveBlock)resolve {
+    if(error) {
+        reject(@"Error", error.localizedDescription, error);
+    } else {
+        // Setup dateFormat
+        NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+        [dateFormat setDateFormat:@"yyyy-MM-dd HH:mm:ss zzz"];
+        
+        // Process fetched mails
+        NSMutableArray *mails = [[NSMutableArray alloc] init];
+        for(MCOIMAPMessage * message in messages) {
+            
+            // Process fetched headers from mail
+            NSMutableDictionary *headers = [[NSMutableDictionary alloc] init];
+            [headers setObject:[NSString stringWithFormat:@"%llu", message.gmailMessageID] forKey:@"gmailMessageID"];
+            [headers setObject:[NSString stringWithFormat:@"%llu", message.gmailThreadID] forKey:@"gmailThreadID"];
+            
+            NSArray *extraHeaderNames = [message.header allExtraHeadersNames];
+            if (extraHeaderNames != nil && extraHeaderNames.count > 0){
+                for(NSString *headerKey in extraHeaderNames) {
+                    [headers setObject:[message.header extraHeaderValueForName:headerKey] forKey:headerKey];
+                }
+            }
+            
+            // Process fetched data from mail
+            NSMutableDictionary *mail = [[NSMutableDictionary alloc] init];
+            [mail setObject: headers forKey: @"headers"];
+            [mail setObject:[NSString stringWithFormat:@"%d",[message uid]] forKey:@"id"];
+            [mail setObject:[NSString stringWithFormat:@"%d",(int)message.flags] forKey:@"flags"];
+            [mail setObject:message.header.from.displayName ? : @"" forKey:@"from"];
+            [mail setObject:message.header.subject forKey:@"subject"];
+            [mail setObject:[dateFormat stringFromDate:message.header.date] forKey:@"date"];
+            if (message.attachments != nil) {
+                [mail setObject:[NSString stringWithFormat:@"%lu", message.attachments.count] forKey:@"attachments"];
+            } else {
+                [mail setObject:[NSString stringWithFormat:@"%d",0] forKey:@"attachments"];
+            }
+            
+            // Append mail to mails result
+            [mails addObject:mail];
+        }
+        
+        // Return mails
+        NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+        [result setObject: @"SUCCESS" forKey: @"status"];
+        [result setObject: mails forKey: @"mails"];
+        resolve(result);
+    }
+}
+
 
 - (instancetype)initSmtp:(MCOSMTPSession *)smtpObject {
     self = [super init];
@@ -769,13 +900,13 @@ RCT_EXPORT_METHOD(getAttachment:(NSDictionary *)obj resolver:(RCTPromiseResolveB
 - (instancetype)initImap:(MCOIMAPSession *)imapObject {
     self = [super init];
     if (self) {
-        _imapObject = imapObject;
+        _imapSession = imapObject;
     }
     return self;
 }
 
 - (MCOIMAPSession *)getImapObject {
-    return _imapObject;
+    return _imapSession;
 }
 
 @end
