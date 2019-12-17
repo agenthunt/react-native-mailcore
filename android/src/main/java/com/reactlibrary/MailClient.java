@@ -14,6 +14,7 @@ import com.facebook.react.bridge.ReadableMapKeySetIterator;
 
 import com.libmailcore.AbstractPart;
 import com.libmailcore.Attachment;
+import com.libmailcore.IMAPFolderStatusOperation;
 import com.libmailcore.IMAPPart;
 import com.libmailcore.IMAPSearchExpression;
 import com.libmailcore.IndexSet;
