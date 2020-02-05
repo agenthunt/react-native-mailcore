@@ -429,12 +429,16 @@ public class MailClient {
                         }
                         mailData.putMap("attachments", attachmentsData);
 
-                        WritableMap headerData = Arguments.createMap();
-                        ListIterator<String> headerIterator = message.header().allExtraHeadersNames().listIterator();
-                        while(headerIterator.hasNext()){
-                            String headerKey = headerIterator.next();
-                            headerData.putString(headerKey, message.header().extraHeaderValueForName(headerKey));
-                        }
+                        // Process fetched headers from mail
+            WritableMap headerData = Arguments.createMap();
+            headerData.putString("gmailMessageID", Long.toString(message.gmailMessageID()));
+            headerData.putString("gmailThreadID", Long.toString(message.gmailThreadID()));
+
+            ListIterator<String> headerIterator = message.header().allExtraHeadersNames().listIterator();
+            while (headerIterator.hasNext()) {
+                String headerKey = headerIterator.next();
+                headerData.putString(headerKey, message.header().extraHeaderValueForName(headerKey));
+            }
                         mailData.putMap("headers", headerData);
 
                         mailData.putString("status", "success");
