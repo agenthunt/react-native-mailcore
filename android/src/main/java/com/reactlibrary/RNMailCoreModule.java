@@ -150,6 +150,16 @@ public class RNMailCoreModule extends ReactContextBaseJavaModule {
     });
   }
 
+   @ReactMethod
+    public void getAttachmentInline(final ReadableMap obj, final Promise promise) {
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mailClient.getAttachmentInline(obj, promise);
+            }
+        });
+    }
+
   @ReactMethod
   public void getMails(final ReadableMap obj, final Promise promise) {
     getCurrentActivity().runOnUiThread(new Runnable() {

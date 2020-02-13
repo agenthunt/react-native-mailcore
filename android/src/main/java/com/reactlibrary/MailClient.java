@@ -429,6 +429,28 @@ public class MailClient {
                         }
                         mailData.putMap("attachments", attachmentsData);
 
+                        if (!message.htmlInlineAttachments().isEmpty()) {
+                            WritableMap attachmentsDataInline = Arguments.createMap();
+                            List<AbstractPart> attachmentsInline = message.htmlInlineAttachments();
+
+                            for (AbstractPart attachment: attachmentsInline) {
+                                IMAPPart part = (IMAPPart) attachment;
+                                WritableMap attachmentData = Arguments.createMap();
+                                attachmentData.putString("filename", attachment.filename());
+
+                                Long size = part.size();
+                                attachmentData.putString("size", size.toString());
+                                attachmentData.putString("cid", attachment.contentID());
+                                attachmentData.putString("partID", ((IMAPPart) attachment).partID());
+                                attachmentData.putInt("encoding", part.encoding());
+                                attachmentData.putString("uniqueId", part.uniqueID());
+                                attachmentData.putString("mimepart", attachment.mimeType());
+
+                                attachmentsDataInline.putMap(part.partID(), attachmentData);
+                            }
+                            mailData.putMap("inline", attachmentsDataInline);
+                        }
+
                         // Process fetched headers from mail
             WritableMap headerData = Arguments.createMap();
             headerData.putString("gmailMessageID", Long.toString(message.gmailMessageID()));
