@@ -135,9 +135,9 @@ public class MailClient {
         });
     }
 
-    public void sendMail(final ReadableMap obj, final Promise promise, Activity currentActivity) {
+    public void sendMail(final ReadableMap obj, final Promise promise, final Activity currentActivity) {
         MessageHeader messageHeader = new MessageHeader();
-        if(obj.hasKey("headers")) {
+        if (obj.hasKey("headers")) {
             ReadableMap headerObj = obj.getMap("headers");
             ReadableMapKeySetIterator headerIterator = headerObj.keySetIterator();
             while (headerIterator.hasNextKey()) {
@@ -167,7 +167,7 @@ public class MailClient {
         messageHeader.setTo(toAddressList);
 
         ArrayList<Address> ccAddressList = new ArrayList();
-        if(obj.hasKey("cc")) {
+        if (obj.hasKey("cc")) {
             ReadableMap ccObj = obj.getMap("cc");
             iterator = ccObj.keySetIterator();
             while (iterator.hasNextKey()) {
@@ -182,7 +182,7 @@ public class MailClient {
         }
 
         ArrayList<Address> bccAddressList = new ArrayList();
-        if(obj.hasKey("bcc")) {
+        if (obj.hasKey("bcc")) {
             ReadableMap bccObj = obj.getMap("bcc");
             iterator = bccObj.keySetIterator();
             while (iterator.hasNextKey()) {
@@ -195,15 +195,15 @@ public class MailClient {
             }
             messageHeader.setBcc(bccAddressList);
         }
-        if(obj.hasKey("subject")) {
+        if (obj.hasKey("subject")) {
             messageHeader.setSubject(obj.getString("subject"));
         }
         final MessageBuilder messageBuilder = new MessageBuilder();
         messageBuilder.setHeader(messageHeader);
-        if(obj.hasKey("body")) {
+        if (obj.hasKey("body")) {
             messageBuilder.setHTMLBody(obj.getString("body"));
         }
-        if(obj.hasKey("attachments")) {
+        if (obj.hasKey("attachments")) {
             ReadableArray attachments = obj.getArray("attachments");
             for (int i = 0; i < attachments.size(); i++) {
                 ReadableMap attachment = attachments.getMap(i);
@@ -214,8 +214,7 @@ public class MailClient {
                 String pathName = attachment.getString("uri");
                 String fileName = attachment.getString("filename");
                 File file = new File(pathName);
-                try
-                {
+                try {
                     long size = 0;
                     InputStream buf = null;
                     Uri uri = Uri.parse(pathName);
@@ -227,7 +226,7 @@ public class MailClient {
                         buf = new BufferedInputStream(new FileInputStream(file));
                         size = file.length();
                     }
-                    byte[] bytes = new byte[(int)size];
+                    byte[] bytes = new byte[(int) size];
 
 
                     buf.read(bytes, 0, bytes.length);
@@ -236,9 +235,7 @@ public class MailClient {
                     result.putString("status", bytes.toString());
                     promise.resolve(result);
                     messageBuilder.addAttachment(Attachment.attachmentWithData(fileName, bytes));
-                }
-                catch (FileNotFoundException e)
-                {
+                } catch (FileNotFoundException e) {
                     promise.reject("Attachments", e.getMessage());
                     return;
                 } catch (IOException e) {
@@ -252,29 +249,34 @@ public class MailClient {
         allRecipients.addAll(toAddressList);
         allRecipients.addAll(ccAddressList);
         allRecipients.addAll(bccAddressList);
-        
-        if(obj.isNull("original_id")) {
+
+        if (obj.isNull("original_id")) {
+
             final SMTPOperation smtpOperation = smtpSession.sendMessageOperation(fromAddress, allRecipients, messageBuilder.data());
             currentActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                smtpOperation.start(new OperationCallback() {
-                    @Override
-                    public void succeeded() {
-                        WritableMap result = Arguments.createMap();
-                        result.putString("status", "SUCCESS");
-                        promise.resolve(result);
-                    }
+                    smtpOperation.start(new OperationCallback() {
+                        @Override
+                        public void succeeded() {
+                            WritableMap result = Arguments.createMap();
+                            result.putString("status", "SUCCESS");
+                            promise.resolve(result);
+                        }
 
-                    @Override
-                    public void failed(MailException e) {
-                        promise.reject(String.valueOf(e.errorCode()), e.getMessage());
-                    }
-                });
+                        @Override
+                        public void failed(MailException e) {
+                            promise.reject(String.valueOf(e.errorCode()), e.getMessage());
+                        }
+                    });
                 }
             });
         } else {
-            Long original_id = ((Double)obj.getDouble("original_id")).longValue();
+            currentActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+            long original_id = (long) obj.getInt("original_id");
+            // Long original_id = ((Double)obj.getDouble("original_id")).longValue();
             String original_folder = obj.getString("original_folder");
             final IMAPFetchContentOperation fetchOriginalMessageOperation = imapSession.fetchMessageByUIDOperation(original_folder, original_id);
             currentActivity.runOnUiThread(new Runnable() {
@@ -290,14 +292,16 @@ public class MailClient {
                                 messageBuilder.header().setInReplyTo(new ArrayList<>(Arrays.asList(messageParser.header().messageID())));
                             }
 
-                            ArrayList<String> newReferences = new ArrayList<>(messageParser.header().references());
-                            if (messageParser.header().messageID() != null) {
-                                newReferences.add(messageParser.header().messageID());
+                            if(messageParser.header().references() != null) {
+                                ArrayList<String> newReferences = new ArrayList<>(messageParser.header().references());
+                                if (messageParser.header().messageID() != null) {
+                                    newReferences.add(messageParser.header().messageID());
+                                }
+                                messageBuilder.header().setReferences(newReferences);
                             }
-                            messageBuilder.header().setReferences(newReferences);
 
                             // set original attachments if they were any left
-                            if(obj.hasKey("attachments")) {
+                            if (obj.hasKey("attachments")) {
                                 ReadableArray attachments = obj.getArray("attachments");
 
                                 for (int i = 0; i < attachments.size(); i++) {
@@ -308,7 +312,7 @@ public class MailClient {
 
                                     for (AbstractPart abstractPart : messageParser.attachments()) {
                                         if (abstractPart instanceof Attachment) {
-                                            Attachment original_attachment = (Attachment)abstractPart;
+                                            Attachment original_attachment = (Attachment) abstractPart;
 
                                             if (!original_attachment.uniqueID().equals(attachment.getString("uniqueId")))
                                                 continue;
@@ -342,7 +346,10 @@ public class MailClient {
                     });
                 }
             });
+                }
+            });
         }
+
     }
 
     public void getMail(final ReadableMap obj,final Promise promise) {
