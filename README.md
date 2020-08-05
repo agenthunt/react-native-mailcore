@@ -141,10 +141,88 @@ import MailCore from 'react-native-mailcore';
   .catch(error => {
     alert(error);
   });
+
+```
+  * List folders
+  ```javascript
+  MailCore.getFolders()
+  .then(result => {
+    const a = [...result.folders];
+    a.forEach(element => {
+      alert(element.path);
+    });
+  })
+  .catch(error => {
+      alert(error);
+  });
+
+  ```
+  * Move Email
+  ```javascript
+    MailCore.moveEmail({
+      folderFrom: 'oldfolder',
+      messageId: 14,
+      folderTo: 'newfolder'
+    })
+    .then(result => {
+      alert(result.status);
+    })
+    .catch(error => {
+        alert(error);
+    });
+  ```
+  
+  * Permant Email Delete
+
+  ```javascript
+    MailCore.permantDeleteEmail({
+      folderFrom: 'folder',
+      messageId: messageId
+    })
+    .then(result => {
+        alert(result.status);
+    })
+    .catch(error => {
+        alert(error);
+    });
+  ```
+  
+  * Action Flag Message
+  ```javascript
+    MailCore.actionFlagMessage({
+      folder: 'folder',
+      messageId: messageId,
+      flagsRequestKind: <FlagsRequestKind val int>,
+      messageFlag: <MessageFlag val int>
+    })
+    .then(result => {
+        alert(result.status);
+    })
+    .catch(error => {
+        alert(error);
+    
+    });
+  ```
+
+* Action label Message
+
+```javascript
+    MailCore.actionLabelMessage({
+      folder: 'folder',
+      messageId: messageId,
+      flagsRequestKind: <FlagsRequestKind val int>,
+      tags: ["tag1","tag2","tag3"]
+    })
+    .then(result => {
+        alert(result.status);
+    })
+    .catch(error => {
+        alert(error);
+    });
 ```
 
   * Rename folder
-  ```javascript
+```javascript
   MailCore.renameFolder({
     folderOldName: 'oldFolderName',
     folderNewName: 'newFolderName'
@@ -154,7 +232,7 @@ import MailCore from 'react-native-mailcore';
   .catch(error => {
     alert(error);
   });
-  ```
+```
 
   * Delete folder
 ```javascript
@@ -307,7 +385,6 @@ import MailCore from 'react-native-mailcore';
   ```
    
   * Get Attachment
-
   ```javascript 
     MailCore.getAttachment({
       filename: 'filename',
@@ -324,7 +401,27 @@ import MailCore from 'react-native-mailcore';
         alert(error);
     });
   ```
-  
+    * Get Attachment Inline (Android) 
+    * In IOS the inline attachment comes in the getmail mail method
+
+  ```javascript 
+    MailCore.getAttachmentInline({
+      filename: 'filename',
+      folder: 'folder',
+      messageId: messageId,
+      partID: 'partID',
+      encoding: encoding,
+      mimepart: 'image/png'
+    })
+    .then(result => {
+      alert(result.status);
+    })
+    .catch(error => {
+        alert(error);
+    });
+  ```
+
+
   * List mails
   ```javascript  
     MailCore.getMails({
@@ -367,7 +464,7 @@ import MailCore from 'react-native-mailcore';
 * [x] listFolders API support
 * [x] imapLogin API support
 * [x] smtpLogin API support
-* [x] GetEmail API support
+* [x] GetEmail API support 
 * [x] MoveEmail API support 
 * [x] DeleteEmail API support 
 * [x] Download attachment 

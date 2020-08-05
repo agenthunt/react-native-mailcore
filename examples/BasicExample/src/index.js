@@ -223,11 +223,14 @@ export default class BasicExample extends Component {
   getMails() {
     let requestKind = IMAPMessagesRequestKind.HEADERS | IMAPMessagesRequestKind.STRUCTURE | 
       IMAPMessagesRequestKind.INTERNAL_DATE | IMAPMessagesRequestKind.HEADER_SUBJECT | 
-      IMAPMessagesRequestKind.FLAGS | IMAPMessagesRequestKind.EXTRA_HEADERS;
+      IMAPMessagesRequestKind.FLAGS | IMAPMessagesRequestKind.EXTRA_HEADERS | 
+      IMAPMessagesRequestKind.GMAIL_MESSAGE_ID | IMAPMessagesRequestKind.GMAIL_THREAD_ID;
     let folder = "INBOX";
-    MailCore.getMails({
+    MailCore.getMailsByRange({
       folder: folder,
       requestKind: requestKind,
+      from: 1,
+      length: 73,
       headers: ['isEncrypted']
     })
     .then(result => {

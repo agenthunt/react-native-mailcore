@@ -1,24 +1,11 @@
 
 package com.reactlibrary;
 
-import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.WritableMap;
-import com.libmailcore.Address;
-import com.libmailcore.AuthType;
-import com.libmailcore.ConnectionType;
-import com.libmailcore.MailException;
-import com.libmailcore.MessageBuilder;
-import com.libmailcore.MessageHeader;
-import com.libmailcore.OperationCallback;
-import com.libmailcore.SMTPOperation;
-import com.libmailcore.SMTPSession;
-
-import java.util.ArrayList;
 
 public class RNMailCoreModule extends ReactContextBaseJavaModule {
 
@@ -140,12 +127,7 @@ public class RNMailCoreModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void sendMail(final ReadableMap obj, final Promise promise) {
-    getCurrentActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        mailClient.sendMail(obj, promise);
-      }
-    });
+      mailClient.sendMail(obj, promise, getCurrentActivity());
   }
 
   @ReactMethod
@@ -168,12 +150,62 @@ public class RNMailCoreModule extends ReactContextBaseJavaModule {
     });
   }
 
+   @ReactMethod
+    public void getAttachmentInline(final ReadableMap obj, final Promise promise) {
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mailClient.getAttachmentInline(obj, promise);
+            }
+        });
+    }
+
   @ReactMethod
   public void getMails(final ReadableMap obj, final Promise promise) {
     getCurrentActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
         mailClient.getMails(obj, promise);
+      }
+    });
+  }
+
+  @ReactMethod
+  public void getMailsThread(final ReadableMap obj, final Promise promise) {
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mailClient.getMailsThread(obj, promise);
+      }
+    });
+  }
+
+  @ReactMethod
+  public void statusFolder(final ReadableMap obj, final Promise promise) {
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mailClient.statusFolder(obj,promise);
+      }
+    });
+  }
+
+  @ReactMethod
+  public void getMailsByRange(final ReadableMap obj, final Promise promise) {
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mailClient.getMailsByRange(obj,promise);
+      }
+    });
+  }
+
+  @ReactMethod
+  public void getMailsByThread(final ReadableMap obj, final Promise promise) {
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mailClient.getMailsByThread(obj,promise);
       }
     });
   }
