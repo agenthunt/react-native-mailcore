@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: 12
       - name: Install dependencies
-        run: /
+        run: |
           sudo apt-get install lib32stdc++6 lib32z
           npm i -g yarn
       - name: Run Tests
